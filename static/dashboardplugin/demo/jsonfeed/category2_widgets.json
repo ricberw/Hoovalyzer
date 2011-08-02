@@ -1,0 +1,36 @@
+{
+  "data" : [
+    {
+      "id" : "w10",
+      "title" : "Path Table",
+      "description" : "Table with frequency of path visits",
+      "creator" : "Richard Berwick",
+      "url" : "static/dashboardplugin/demo/widgets/widget10.html",
+      "image": "static/dashboardplugin/demo/widgets/widget10.png"
+    },
+    {
+      "id" : "w11",
+      "title" : "Referrer Table",
+      "description" : "Table with frequency of referring URLs",
+      "creator" : "Richard Berwick",
+      "url" : "static/dashboardplugin/demo/widgets/widget11.html",
+      "image": "static/dashboardplugin/demo/widgets/widget11.png"
+    },
+    {
+      "id" : "w12",
+      "title" : "User Agent Table",
+      "description" : "Table with frequency of user agents",
+      "creator" : "Richard Berwick",
+      "url" : "static/dashboardplugin/demo/widgets/widget12.html",
+      "image": "static/dashboardplugin/demo/widgets/widget12.png"
+    },
+    {
+      "id" : "w13",
+      "title" : "User IP Table",
+      "description" : "Table with frequency of user's ips",
+      "creator" : "Richard Berwick",
+      "url" : "static/dashboardplugin/demo/widgets/widget13.html",
+      "image": "static/dashboardplugin/demo/widgets/widget13.png"
+    }
+  ]
+}

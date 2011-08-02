@@ -1,0 +1,44 @@
+{
+  "data" : [
+    {
+      "id" : "w01",
+      "title" : "Hits Graph",
+      "description" : "Graph of hits to your server",
+      "creator" : "Richard Berwick",
+      "url" : "static/dashboardplugin/demo/widgets/widget1.html",
+      "image": "static/dashboardplugin/demo/widgets/widget1.png"
+    },
+    {
+      "id" : "w02",
+      "title" : "Status Pie Chart",
+      "description" : "Pie chart of status frequency",
+      "creator" : "Richard Berwick",
+      "url" : "static/dashboardplugin/demo/widgets/widget2.html",
+      "image": "static/dashboardplugin/demo/widgets/widget2.png"
+    },
+    {
+      "id" : "w03",
+      "title" : "Referrers Pie Chart",
+      "description" : "Pie chart of referrers frequency",
+      "creator" : "Richard Berwick",
+      "url" : "static/dashboardplugin/demo/widgets/widget3.html",
+      "image": "static/dashboardplugin/demo/widgets/widget3.png"
+    },
+    {
+      "id" : "w04",
+      "title" : "User Agent Pie Chart",
+      "description" : "Pie chart of user agent frequency",
+      "creator" : "Richard Berwick",
+      "url" : "static/dashboardplugin/demo/widgets/widget4.html",
+      "image": "static/dashboardplugin/demo/widgets/widget4.png"
+    },
+    {
+      "id" : "w05",
+      "title" : "Page Size Scatterplot",
+      "description" : "Scatterplot of page size frequency",
+      "creator" : "Richard Berwick",
+      "url" : "static/dashboardplugin/demo/widgets/widget5.html",
+      "image": "static/dashboardplugin/demo/widgets/widget5.png"
+    }
+  ]
+}

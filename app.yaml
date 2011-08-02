@@ -1,0 +1,63 @@
+application: hoovalyzer
+version: 1
+runtime: python
+api_version: 1
+
+handlers:
+
+- url: /static/images
+  static_dir: static/images
+
+- url: /static/js
+  static_dir: static/js
+
+- url: /static/stylesheet
+  static_dir: static/stylesheet
+
+- url: /static/dashboardplugin
+  static_dir: static/dashboardplugin
+
+- url: /static/dashboardplugin/demo
+  static_dir: static/dashboardplugin/demo
+
+- url: /static/dashboardplugin/lib
+  static_dir: static/dashboardplugin/lib
+
+- url: /static/dashboardplugin/themes
+  static_dir: static/dashboardplugin/themes
+
+- url: /static/dashboardplugin/demo/jsonfeed
+  static_dir: static/dashboardplugin/demo/jsonfeed
+
+- url: /static/dashboardplugin/demo/layouts
+  static_dir: static/dashboardplugin/demo/layouts
+
+- url: /static/dashboardplugin/demo/tabs
+  static_dir: static/dashboardplugin/demo/tabs
+
+- url: /static/dashboardplugin/demo/widgets
+  static_dir: static/dashboardplugin/demo/widgets
+
+- url: /static/dashboardplugin/themes/default
+  static_dir: static/dashboardplugin/themes/default
+
+- url: /static/dashboardplugin/themes/default/jquery-ui-images
+  static_dir: static/dashboardplugin/themes/default/jquery-ui-images
+
+- url: /
+  script: hoov_call.py
+
+- url: /analytics
+  script: hoov_call.py
+
+- url: /grab
+  script: hoov_call.py
+
+- url: /grabf
+  script: hoov_call.py
+
+- url: /show
+  script: hoov_call.py
+
+- url: /dashboard
+  script: hoov_call.py

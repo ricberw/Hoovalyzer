@@ -1,0 +1,13 @@
+{
+"layout": "layout2",
+"data" : [
+    {
+      "title" : "Welcome",
+      "id" : "widget0",
+      "column" : "first",
+      "url" : "static/dashboardplugin/demo/widgets/widget0.html",
+      "editurl" : "static/dashboardplugin/demo/widgets/editwidget0.html",
+      "open" : true
+    }
+]
+}

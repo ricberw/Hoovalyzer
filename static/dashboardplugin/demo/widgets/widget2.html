@@ -1,0 +1,11 @@
+<div id='statuschart' style='height: 300px; width: 100%;'></div>
+<script>
+        // Create Status Graph
+        createPie(statsjson, 'status', 'statuschart', 'Status');
+
+if(typeof createPie == 'function') { 
+console.log('yes, it exists');
+} else {
+console.log('no, it does not');
+}
+</script>

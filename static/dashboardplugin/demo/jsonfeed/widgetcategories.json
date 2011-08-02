@@ -1,0 +1,16 @@
+{
+"category": [
+  {
+    "id":1,
+    "title" : "Charts and Graphs",
+    "amount" : 5,
+    "url" : "static/dashboardplugin/demo/jsonfeed/category1_widgets.json"
+  },
+  {
+    "id":2,
+    "title" : "Tables",
+    "amount" : 4,
+    "url" : "static/dashboardplugin/demo/jsonfeed/category2_widgets.json"
+  }
+]
+}
