@@ -7,7 +7,6 @@
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js'></script>
     <script type='text/javascript' src='http://www.google.com/jsapi'></script>
     <script type="text/javascript">
-      //google.load('visualization', '1.0', {packages: ['piechart']});
       google.load('visualization', '1', {packages:['table']});
       google.load("visualization", "1", {packages:["corechart"]});
       google.load('visualization', '1', {'packages':['annotatedtimeline']});
@@ -19,90 +18,19 @@
     <link rel="stylesheet" type="text/css" href="static/stylesheet/anytime.css" />
     <script type="text/javascript" src="static/js/anytime.js"></script>
     <script type="text/javascript" src="static/js/anytimetz.js"></script>
+    <script type="text/javascript" src="static/js/cookie.js"></script>
     <script type='text/javascript'>
 
+// Clear global variables
 statsjson = {}
 hitsjson = {}
 mywidgets = {}
-
-function Set_Cookie( name, value, expires, path, domain, secure )
-{
-// set time, it's in milliseconds
-var today = new Date();
-today.setTime( today.getTime() );
-
-/*
-if the expires variable is set, make the correct
-expires time, the current script below will set
-it for x number of days, to make it for hours,
-delete * 24, for minutes, delete * 60 * 24
-*/
-if ( expires )
-{
-expires = expires * 1000 * 60 * 60 * 24;
-}
-var expires_date = new Date( today.getTime() + (expires) );
-
-document.cookie = name + "=" +escape( value ) +
-( ( expires ) ? ";expires=" + expires_date.toGMTString() : "" ) +
-( ( path ) ? ";path=" + path : "" ) +
-( ( domain ) ? ";domain=" + domain : "" ) +
-( ( secure ) ? ";secure" : "" );
-}
-
-// this fixes an issue with the old method, ambiguous values
-// with this test document.cookie.indexOf( name + "=" );
-function Get_Cookie( check_name ) {
-	// first we'll split this cookie up into name/value pairs
-	// note: document.cookie only returns name=value, not the other components
-	var a_all_cookies = document.cookie.split( ';' );
-	var a_temp_cookie = '';
-	var cookie_name = '';
-	var cookie_value = '';
-	var b_cookie_found = false; // set boolean t/f default f
-
-	for ( i = 0; i < a_all_cookies.length; i++ )
-	{
-		// now we'll split apart each name=value pair
-		a_temp_cookie = a_all_cookies[i].split( '=' );
-
-
-		// and trim left/right whitespace while we're at it
-		cookie_name = a_temp_cookie[0].replace(/^\s+|\s+$/g, '');
-
-		// if the extracted name matches passed check_name
-		if ( cookie_name == check_name )
-		{
-			b_cookie_found = true;
-			// we need to handle case where cookie has no value but exists (no = sign, that is):
-			if ( a_temp_cookie.length > 1 )
-			{
-				cookie_value = unescape( a_temp_cookie[1].replace(/^\s+|\s+$/g, '') );
-			}
-			// note that in cases where cookie is initialized but no value, null is returned
-			return cookie_value;
-			break;
-		}
-		a_temp_cookie = null;
-		cookie_name = '';
-	}
-	if ( !b_cookie_found )
-	{
-		return null;
-	}
-}
-
-// this deletes the cookie when called
-function Delete_Cookie( name, path, domain ) {
-if ( Get_Cookie( name ) ) document.cookie = name + "=" +
-( ( path ) ? ";path=" + path : "") +
-( ( domain ) ? ";domain=" + domain : "" ) +
-";expires=Thu, 01-Jan-1970 00:00:01 GMT";
-}
-
 var returnArray = [];
+writeout = "";
+var a = [], b = [], prev;
+o = {};
 
-// Find values
+// Find data
 function find(json, type) {
     for (j=0;j<json.length;j++){
     returnArray.push(json[j].json[type]);
@@ -110,8 +38,7 @@ function find(json, type) {
     return returnArray;
 }
 
-var a = [], b = [], prev;
-
+// Find number of instances of each unique key
 function findInstances(arr) {
     arr.sort();
     for ( var i = 0; i < arr.length; i++ ) {
@@ -125,11 +52,9 @@ function findInstances(arr) {
     }
     return [a, b];
 }
-    
-writeout = "";
 
+// Write input-start-end form to "Welcome" widget    
 function insertoutputs(input_names, input_keys){
-	console.log(input_names.length);
 	writeout = "Fill out the following details, then click <b>View Statistics</b> to update the graphs below.<form>";
 	writeout = writeout+"<b>Input:</b> <select name='inputname' id='inputname'>";
 	for (i = 0; i<input_names.length; i++){
@@ -148,6 +73,8 @@ function insertoutputs(input_names, input_keys){
 	$('#closeform').append( datetimepicker );
 }
 
+
+// Error handler
 $().ready(function(){
         $.ajaxSetup({
                 error:function(x,e){
@@ -157,7 +84,6 @@ $().ready(function(){
                         alert('Something is acting up - please try again later.');
                         }else if(x.status==500){
 			document.getElementById("output").innerHTML = "Login error - please wait...";
-			//setTimeout('clearcookie()',1500);
 			}else if(e=='parsererror'){
                         alert('Error.\nParsing JSON Request failed.');
                         }else if(e=='timeout'){
@@ -169,41 +95,8 @@ $().ready(function(){
         });
 });
 
-function createPie(statsjson, type, div, title) {
-	    if(document.getElementById(div)){
-            returnArray = [];
-            a = [];
-            b = [];
-            data = '';
-	    var newjson = JSON.stringify(statsjson);
-            uniquedata = find(statsjson.data, type);
-            instances = findInstances(returnArray);
-            var output = statsjson.data;
-            var data = new google.visualization.DataTable();
-            data.addColumn('string', title);
-            data.addColumn('number', 'Instances');
-            data.addRows(a.length);
-            var j = 0;
-            var jsonlength = newjson.length-1;
-            for (z=0;z<a.length;z++){
-               if(j > jsonlength){
-                 break;
-               }
-	       // Check for empty value
-                if(!a[z])
-                a[z] = "Unknown";
-               //data.setValue(j, 0,a[z].substr(0,40)+'...');
-               data.setValue(j, 0,a[z]);
-	       data.setValue(j, 1,b[z]);
-               j= j+1;
-            }
-            var chart = new google.visualization.PieChart( document.getElementById(div) );
-            chart.draw(data, {width: '100%', height: 300, is3D: true, title: title, legendTextStyle: {fontSize: 10}});
-	    }
-}
-
-function createArea(statsjson, type, div, title) {
-            if(document.getElementById(div)){
+// Create data table to build Google Charts
+function createDataArray(statsjson, type, title, dataType){
 	    returnArray = [];
             a = [];
             b = [];
@@ -213,7 +106,19 @@ function createArea(statsjson, type, div, title) {
             instances = findInstances(returnArray);
             var output = statsjson.data;
             var data = new google.visualization.DataTable();
+	    if(dataType == "reg"){
+	    data.addColumn('string', title);
+	    }
+	    if(dataType == "num"){
             data.addColumn('number', title);
+	    }
+	    if(dataType == "date"){
+	    data.addColumn('date', title);
+	    $.each(hitsjson['data'], function(key, val) {
+		a.push(key);
+		b.push(val);
+	    });
+	    }
 	    data.addColumn('number', 'Instances');
 	    data.addRows(a.length);
             var j = 0;
@@ -225,80 +130,61 @@ function createArea(statsjson, type, div, title) {
                // Check for empty value
                 if(!a[z])
                 a[z] = "Unknown";
-               data.setValue(j, 1,b[z]);
-               data.setValue(j, 0,parseInt(a[z]));
+
+	       if(dataType == "reg"){
+	       columnData = a[z];
+	       }
+	       if(dataType == "num"){
+	       columnData = parseInt(a[z]);
+               }
+	       if(dataType == "date"){
+	       columnData = new Date(a[z]);
+	       }
+
+	       data.setValue(j, 1,b[z]);
+               data.setValue(j, 0,columnData);
                j= j+1;
             }
+	    return data;
+}
+
+// Draw pie charts
+function createPie(statsjson, type, div, title) {
+	    if(document.getElementById(div)){
+	    data = createDataArray(statsjson, type, title, 'reg');
+	    var chart = new google.visualization.PieChart( document.getElementById(div) );
+            chart.draw(data, {width: '100%', height: 300, is3D: true, title: title, legendTextStyle: {fontSize: 10}});
+	    }
+}
+
+// Draw scatter charts
+function createArea(statsjson, type, div, title) {
+            if(document.getElementById(div)){
+	    data = createDataArray(statsjson, type, title, 'num');
             var chart = new google.visualization.ScatterChart( document.getElementById(div) );
             chart.draw(data, {width: '100%', height: 300, title: title, legend: 'none', hAxis: {title: 'Page Size (bytes)'}, vAxis: {title: 'Instances'}});
 	    }
 }
 
+// Draw tables
 function createTable(statsjson, type, div, title, options) {
             if(document.getElementById(div)){
-            returnArray = [];
-            a = [];
-            b = [];
-            data = '';
-            var newjson = JSON.stringify(statsjson);
-            uniquedata = find(statsjson.data, type);
-            instances = findInstances(returnArray);
-            var output = statsjson.data;
-            var data = new google.visualization.DataTable();
-            data.addColumn('string', title);
-            data.addColumn('number', 'Instances');
-            data.addRows(a.length);
-            var j = 0;
-            var jsonlength = newjson.length-1;
-            for (z=0;z<a.length;z++){
-               if(j > jsonlength){
-                 break;
-               }
-               // Check for empty value
-                if(!a[z])                a[z] = "Unknown";
-               data.setValue(j, 0,a[z]);
-               data.setValue(j, 1,b[z]);
-               j= j+1;
-            }
-            var table = new google.visualization.Table( document.getElementById(div) );
+            data = createDataArray(statsjson, type, title, 'reg');
+	    var table = new google.visualization.Table( document.getElementById(div) );
 	    table.draw(data, options);
 	    }
 }
 
+// Draw timelines
 function hitsTable(hitsjson, type, div, title) {
             if(document.getElementById(div)){
-	    returnArray = [];
-            a = [];
-            b = [];
-            data = '';
- 
-	    $.each(hitsjson['data'], function(key, val) {
-		//var myDate = new Date(key); // Your timezone!
-		//var myEpoch = myDate.getTime()/1000.0;
-		//var myEpoch = myEpoch.toString();
-		a.push(key);
-		b.push(val);
-	    });
-	    
-	    var newjson = JSON.stringify(hitsjson);
-            var data = new google.visualization.DataTable();
-            data.addColumn('date', title);
-            data.addColumn('number', 'Hits');
-            data.addRows(a.length);
-            var j = 0;
-	    for (z=0;z<a.length;z++){
-               // Check for empty value
-                if(!a[z])                
-		a[z] = "Unknown";
-               	data.setValue(j, 0,new Date(a[z]));
-               	data.setValue(j, 1,b[z]);
-               j= j+1;
-            }
+	    data = createDataArray(statsjson, type, title, 'date');
 	    var chart = new google.visualization.AnnotatedTimeLine( document.getElementById(div) );
             chart.draw(data, {displayAnnotations: false, wmode: 'transparent', width: '100%', height: 300, title: title});
 	    }
 }
 
+// Grab search data from Loggly's API
 function stats(){
        $.post('/grab', {logglyname: Get_Cookie('logglyuser'), 'logglypass': Get_Cookie('logglypass'), 'logglysub': Get_Cookie('logglysub'), 'inputname': $('#inputname').val(), 'searchquery': '', 'starttime': encodeURIComponent($('#starttime').val()), 'endtime': encodeURIComponent($('#endtime').val())},
 	function(json){
@@ -310,9 +196,18 @@ function stats(){
 
 }
 
-function refresh(statsjson){
+// Grab facets data from Loggly's API
+function facets(){
+       $.post('/grabf', {logglyname: Get_Cookie('logglyuser'), 'logglypass': Get_Cookie('logglypass'), 'logglysub': Get_Cookie('logglysub'), 'inputname': $('#inputname').val(), 'searchquery': '', 'starttime': encodeURIComponent($('#starttime').val()), 'endtime': encodeURIComponent($('#endtime').val())},
+        function(json){
+		hitsjson = json;
+		refreshf(hitsjson);
+                },
+                "json");
+}
 
-	console.log(statsjson);
+// Create graphs and update UI display
+function refresh(statsjson){
 	// Create Status Graph
 	createPie(statsjson, 'status', 'statuschart', 'Status');
 
@@ -334,21 +229,13 @@ function refresh(statsjson){
 	createArea(statsjson, 'size', 'sizechart', 'Page Size');
 }
 
+// Create graphs and update UI display
 function refreshf(hitsjson){
         // Create Hits Table
         hitsTable(hitsjson, 'data', 'hitstable', 'Hits');
 }
 
-function facets(){
-       $.post('/grabf', {logglyname: Get_Cookie('logglyuser'), 'logglypass': Get_Cookie('logglypass'), 'logglysub': Get_Cookie('logglysub'), 'inputname': $('#inputname').val(), 'searchquery': '', 'starttime': encodeURIComponent($('#starttime').val()), 'endtime': encodeURIComponent($('#endtime').val())},
-        function(json){
-		hitsjson = json;
-		refreshf(hitsjson);
-                },
-                "json");
-}
-
-
+// Login to Loggly and grab inputs
 function login(){
 		if(!Get_Cookie('logglyuser')) {
                 Set_Cookie('logglyuser', $('#user').val(), '', '/', '', '');
@@ -392,6 +279,7 @@ function login(){
        		"json");
 }
 
+// Clear all cookies and send back to the homepage (logout)
 function clearcookie(){
 Delete_Cookie('logglyuser', '/', '');
 Delete_Cookie('logglypass', '/', '');
@@ -400,11 +288,8 @@ Delete_Cookie('mywidgets', '/', '');
 document.getElementById('contentbox').innerHTML = "Cookies cleared. Please wait...";
 setTimeout('window.location = "/"',3000);
 }
-    </script>
 
-    <script type="text/javascript">
-	o = {};
-
+	// Check for cookie with user's widget settings - if !exists, just show "Welcome" widget
 	if(!Get_Cookie('mywidgets')){
         	mywidgets = JSON.parse('{"layout":"layout2","data":[{"title":"Welcome","id":"widget0","column":"first","url":"static/dashboardplugin/demo/widgets/widget0.html","editurl":"static/dashboardplugin/demo/widgets/editwidget0.html","open":true}]}');
         } else {
@@ -530,41 +415,6 @@ setTimeout('window.location = "/"',3000);
 		o.widget.refreshContent();
 	});
 
-/*
-	dashboard.element.live('widgetLoaded', function(e, o) {
-		// Create array 'remove' function
-		Array.prototype.remove = function(name, value) {  
-		    var rest = $.grep(this, function(item){    
-		        return (item[name] !== value); // <- You may or may not want strict equality
-		    });
-
-		    this.length = 0;
-		    this.push.apply(this, rest);
-		    return this; // <- This seems like a jQuery-ish thing to do but is optional
-		};
-
-		// Remove widget from 'mywidgets' json
-		mywidgets.data.remove("id", o.widget.id);
-	
-		// Stringify the JSON to store as a cookie
-		mywidgetcookie = JSON.stringify(mywidgets);
-
-		// Set the revised 'mywidgets' cookie
-		Set_Cookie('mywidgets', mywidgetcookie, '', '/', '', '');
-
-		// Add widget to 'mywidgets' json
-		mywidgets.data.push(JSON.parse(o.widget.serialize()));
-		console.log('added!');
-		console.log(JSON.parse(o.widget.serialize()));
-
-        	// Stringify the JSON to store as a cookie
-        	mywidgetcookie = JSON.stringify(mywidgets);
-
-        	// Set the revised 'mywidgets' cookie
-        	Set_Cookie('mywidgets', mywidgetcookie, '', '/', '', '');
-	});
-*/
-
 	// Remove widget from user cookie	
 	dashboard.element.live('widgetDeleted', function(e, o) {
 	// Create array 'remove' function
@@ -593,11 +443,10 @@ setTimeout('window.location = "/"',3000);
         }
       });
 
-$(document).ready(function() {
+// If the window is resized, refresh the contents to fix the width of each widget
 $(window).resize(function() {
 	refresh(statsjson);
 	refreshf(hitsjson);
-});
 });
 
     </script>
