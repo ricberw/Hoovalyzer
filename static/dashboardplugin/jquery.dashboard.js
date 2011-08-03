@@ -119,7 +119,11 @@
               ui.item.find('.' + opts.widgetTitleClass).removeClass('noclick');
              }, 300);
             // Line added below to fix widgetDropped to also see when dropped in same column
+<<<<<<< HEAD
             dashboard.element.trigger("dashboardStateChange");
+=======
+            dashboard.element.trigger("dashboardSaveState");
+>>>>>>> Repaired dashboard state save mechanisms.
 
         }
 
@@ -197,8 +201,14 @@
         // add it to the column
         wi.appendTo(column);    
 
-	if (obj.column = 'undefined') 
-	obj.column = 'first';
+	if (obj.column = 'undefined'){ 
+		if (loadedYet == 0){
+			obj.column = JSON.parse(Get_Cookie('mywidgets')).data[widgetID].column;
+			widgetID++;
+		} else {
+			obj.column = 'first';
+		}
+	}
 
         dashboard.widgets[wid] = widget({
           id: wid,
@@ -316,6 +326,8 @@
               widget.loaded = true;
               dashboard.log('widgetLoaded event thrown for widget ' + widget.id,2);        
               widget.element.trigger("widgetLoaded", {"widget":widget});
+	      dashboard.log('dashboardStateChange event thrown for widget ' + widget.id,2);
+              dashboard.element.trigger("dashboardStateChange",{"stateChange":"widgetOpened","widget":widget});
             });
           } else {          
             dashboard.log('widgetShow event thrown for widget ' + widget.id,2);        
@@ -323,14 +335,12 @@
 
             dashboard.log('widgetLoaded event thrown',2);                  
             widget.element.trigger("widgetLoaded", {"widget":widget});
+	    dashboard.log('dashboardStateChange event thrown for widget ' + widget.id,2);
+            dashboard.element.trigger("dashboardStateChange",{"stateChange":"widgetOpened","widget":widget});
           }
         } else {
           dashboard.log('widgetShow event thrown for widget ' + widget.id,2);        
           widget.element.trigger("widgetShow", {"widget":widget});
-        }
-        if (dashboard.initialized) {
-          dashboard.log('dashboardStateChange event thrown for widget ' + widget.id,2);        
-          dashboard.element.trigger("dashboardStateChange",{"stateChange":"widgetOpened","widget":widget});        
         }
       };
       widget.refreshContent = function() {

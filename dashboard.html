@@ -29,6 +29,8 @@ var returnArray = [];
 writeout = "";
 var a = [], b = [], prev;
 o = {};
+widgetID = 0;
+loadedYet = 0;
 
 // Find data
 function find(json, type) {
@@ -192,7 +194,7 @@ function stats(){
 		refresh(statsjson);
         },
                 "json");
-       $('#addwidget').html('<a class="openaddwidgetdialog" href="#">Add Widget</a>');
+       $('#addwidget').html('<a class="openaddwidgetdialog" href="#" onclick="javascript:loadedYet++;">Add Widget</a>');
 
 }
 
@@ -292,6 +294,7 @@ setTimeout('window.location = "/"',3000);
 	// Check for cookie with user's widget settings - if !exists, just show "Welcome" widget
 	if(!Get_Cookie('mywidgets')){
         	mywidgets = JSON.parse('{"layout":"layout2","data":[{"title":"Welcome","id":"widget0","column":"first","url":"static/dashboardplugin/demo/widgets/widget0.html","editurl":"static/dashboardplugin/demo/widgets/editwidget0.html","open":true}]}');
+		Set_Cookie('mywidgets', JSON.stringify(mywidgets), '', '/', '', '');
         } else {
         	mywidgets = JSON.parse(Get_Cookie('mywidgets'));
         }
@@ -365,13 +368,15 @@ setTimeout('window.location = "/"',3000);
 
           }); // end dashboard call
 
+
           // binding for a widgets is added to the dashboard
           dashboard.element.live('dashboardAddWidget',function(e, obj){
             var widget = obj.widget;
 
             dashboard.addWidget({
-              "id":startId++,
-              "title":widget.title,
+              //"id":startId++,
+              "id":widget.id,
+	      "title":widget.title,
               "url":widget.url,
               "metadata":widget.metadata
               }, dashboard.element.find('.column:first'));
@@ -382,10 +387,20 @@ setTimeout('window.location = "/"',3000);
 		// Refresh content inside widget
 		o.widget.refreshContent();
 	});
+<<<<<<< HEAD
 
 	// Remove widget from user cookie	
 	dashboard.element.live('dashboardStateChange', function() {
                 Set_Cookie('mywidgets', JSON.stringify(JSON.parse(dashboard.serialize())), '', '/', '', '');
+=======
+	dashboard.element.live('dashboardStateChange', function(e, o) {
+		Set_Cookie('mywidgets', JSON.stringify(JSON.parse(dashboard.serialize())), '', '/', '', '');
+		mywidgets = JSON.parse(Get_Cookie('mywidgets'));
+	});
+	dashboard.element.live('dashboardSaveState', function(e, o) {
+		Set_Cookie('mywidgets', JSON.stringify(JSON.parse(dashboard.serialize())), '', '/', '', '');
+		mywidgets = JSON.parse(Get_Cookie('mywidgets'));
+>>>>>>> Repaired dashboard state save mechanisms.
 	});
 
           // the init builds the dashboard. This makes it possible to first unbind events before the dashboars is built.
