@@ -119,12 +119,7 @@
               ui.item.find('.' + opts.widgetTitleClass).removeClass('noclick');
              }, 300);
             // Line added below to fix widgetDropped to also see when dropped in same column
-<<<<<<< HEAD
-            dashboard.element.trigger("dashboardStateChange");
-=======
             dashboard.element.trigger("dashboardSaveState");
->>>>>>> Repaired dashboard state save mechanisms.
-
         }
 
       });
