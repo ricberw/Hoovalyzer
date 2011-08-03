@@ -377,38 +377,6 @@ setTimeout('window.location = "/"',3000);
               }, dashboard.element.find('.column:first'));
           });
 
-	// Add widget to user cookie
-	dashboard.element.live('widgetAdded', function(e, o) {
-
-	// Check if widget is already in 'mywidgets'
-	var exists=false;
-
-	for (var index = 0; index < mywidgets.data.length; ++index) {
-		var jsonind = mywidgets.data[index];
-		if(jsonind.id == o.widget.id){
-			exists = true;
-			break;
-		}
-	}
-
-	console.log(o.widget.serialize());
-
-	// If the widget is not already listed, add it to 'mywidgets'
-	if (exists == true){
-		console.log('already exists!');
-	} else {
-		// Add widget to 'mywidgets' json
-		mywidgets.data.push(JSON.parse(o.widget.serialize()));
-		console.log('added!');
-
-        	// Stringify the JSON to store as a cookie
-        	mywidgetcookie = JSON.stringify(mywidgets);
-
-        	// Set the revised 'mywidgets' cookie
-        	Set_Cookie('mywidgets', mywidgetcookie, '', '/', '', '');
-	}
-	});
-
 	// Update column in 'mywidgets' when user moves widget
 	dashboard.element.live('widgetDropped', function(e, o) {
 		// Refresh content inside widget
@@ -416,26 +384,8 @@ setTimeout('window.location = "/"',3000);
 	});
 
 	// Remove widget from user cookie	
-	dashboard.element.live('widgetDeleted', function(e, o) {
-	// Create array 'remove' function
-	Array.prototype.remove = function(name, value) {  
-	    var rest = $.grep(this, function(item){    
-	        return (item[name] !== value); // <- You may or may not want strict equality
-	    });
-
-	    this.length = 0;
-	    this.push.apply(this, rest);
-	    return this; // <- This seems like a jQuery-ish thing to do but is optional
-	};
-
-	// Remove widget from 'mywidgets' json
-	mywidgets.data.remove("id", o.widget.id);
-	
-	// Stringify the JSON to store as a cookie
-	mywidgetscookie = JSON.stringify(mywidgets);
-
-	// Set the revised 'mywidgets' cookie
-	Set_Cookie('mywidgets', mywidgetscookie, '', '/', '', '');
+	dashboard.element.live('dashboardStateChange', function() {
+                Set_Cookie('mywidgets', JSON.stringify(JSON.parse(dashboard.serialize())), '', '/', '', '');
 	});
 
           // the init builds the dashboard. This makes it possible to first unbind events before the dashboars is built.
