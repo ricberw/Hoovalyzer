@@ -118,10 +118,8 @@
             setTimeout(function(){
               ui.item.find('.' + opts.widgetTitleClass).removeClass('noclick');
              }, 300);
-            var w = dashboard.getWidget(ui.item.attr("id"));
-            w.column = getColumnIdentifier($(this).attr("class"));
             // Line added below to fix widgetDropped to also see when dropped in same column
-            w.element.trigger("widgetDropped",{"widget":w});
+            dashboard.element.trigger("dashboardStateChange");
 
         }
 
