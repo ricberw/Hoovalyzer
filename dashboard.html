@@ -180,7 +180,7 @@ function createTable(statsjson, type, div, title, options) {
 // Draw timelines
 function hitsTable(hitsjson, type, div, title) {
             if(document.getElementById(div)){
-	    data = createDataArray(statsjson, type, title, 'date');
+	    data = createDataArray(hitsjson, type, title, 'date');
 	    var chart = new google.visualization.AnnotatedTimeLine( document.getElementById(div) );
             chart.draw(data, {displayAnnotations: false, wmode: 'transparent', width: '100%', height: 300, title: title});
 	    }
@@ -386,13 +386,25 @@ setTimeout('window.location = "/"',3000);
 	// Update column in 'mywidgets' when user moves widget
 	dashboard.element.live('widgetDropped', function(e, o) {
 		// Refresh content inside widget
-		o.widget.refreshContent();
+		// o.widget.refreshContent();
+		if(statsjson.data){
+                        refresh(statsjson);
+                }
+                if(hitsjson.data){
+                        refreshf(hitsjson);
+                }
 	});
 
 	// Remove widget from user cookie	
 	dashboard.element.live('dashboardStateChange', function(e, o) {
 		Set_Cookie('mywidgets', JSON.stringify(JSON.parse(dashboard.serialize())), '', '/', '', '');
 		mywidgets = JSON.parse(Get_Cookie('mywidgets'));
+		if(statsjson.data){
+			refresh(statsjson);
+		}
+		if(hitsjson.data){
+			refreshf(hitsjson);
+		}
 	});
 	dashboard.element.live('dashboardSaveState', function(e, o) {
 		Set_Cookie('mywidgets', JSON.stringify(JSON.parse(dashboard.serialize())), '', '/', '', '');
