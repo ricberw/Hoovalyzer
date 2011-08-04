@@ -1,4 +1,9 @@
 <div id='referrerchart'></div>
 <script>
+if(statsjson.data){
+        // Create Status Graph
         createPie(statsjson, 'referrer', 'referrerchart', 'Referrers');
+} else {
+        $('#referrerchart').html('Please click "Get Data" in the "Welcome" widget to generate graphs.');
+}
 </script>

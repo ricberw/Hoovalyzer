@@ -1,11 +1,9 @@
-<div id='statuschart' style='height: 300px; width: 100%;'></div>
+<div id='statuschart' style='width: 100%;'></div>
 <script>
+if(statsjson.data){
         // Create Status Graph
         createPie(statsjson, 'status', 'statuschart', 'Status');
-
-if(typeof createPie == 'function') { 
-console.log('yes, it exists');
 } else {
-console.log('no, it does not');
+        $('#statuschart').html('Please click "Get Data" in the "Welcome" widget to generate graphs.');
 }
 </script>

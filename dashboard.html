@@ -234,6 +234,7 @@ function refresh(statsjson){
 // Create graphs and update UI display
 function refreshf(hitsjson){
         // Create Hits Table
+	$('#hitstable').css('height','300px');
         hitsTable(hitsjson, 'data', 'hitstable', 'Hits');
 }
 
@@ -253,7 +254,7 @@ function login(){
 
 		document.getElementById('loginbox').innerHTML = '';
 
-		$('#headerlinks').append(' | <a onclick="javascript:clearcookie();" class="headerlink">Logout (Clear Cookies)</a>');
+		$('#headerlinks').html('<a class="editlayout headerlink" href="#">Edit layout</a> | <a onclick="javascript:clearcookie();" class="headerlink">Logout (Clear Cookies)</a>');
 
        $.post('/', {logglyname: Get_Cookie('logglyuser'), 'logglypass': Get_Cookie('logglypass'), 'logglysub': Get_Cookie('logglysub')},
        		function(json){
@@ -396,6 +397,11 @@ setTimeout('window.location = "/"',3000);
 	dashboard.element.live('dashboardSaveState', function(e, o) {
 		Set_Cookie('mywidgets', JSON.stringify(JSON.parse(dashboard.serialize())), '', '/', '', '');
 		mywidgets = JSON.parse(Get_Cookie('mywidgets'));
+		o.widget.refreshContent();
+	});
+	dashboard.element.live('dashboardLayoutChanged', function() {
+		Set_Cookie('mywidgets', JSON.stringify(JSON.parse(dashboard.serialize())), '', '/', '', '');
+                mywidgets = JSON.parse(Get_Cookie('mywidgets'));
 	});
 
           // the init builds the dashboard. This makes it possible to first unbind events before the dashboars is built.

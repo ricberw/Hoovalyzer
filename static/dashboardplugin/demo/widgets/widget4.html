@@ -1,4 +1,9 @@
 <div id='useragentchart'></div>
 <script>
-createPie(statsjson, 'agent', 'useragentchart', 'User Agent');
+if(statsjson.data){
+        // Create Hits Table
+	createPie(statsjson, 'agent', 'useragentchart', 'User Agent');
+} else {
+        $('#useragentchart').html('Please click "Get Data" in the "Welcome" widget to generate graphs.');
+}
 </script>

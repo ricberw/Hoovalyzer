@@ -114,12 +114,13 @@
           ui.item.find('.' + opts.widgetTitleClass).addClass('noclick');
         },
         stop: function(event, ui) {
-            //sorting changed (within one list)
+            var w = dashboard.getWidget(ui.item.attr("id"));
+	    //sorting changed (within one list)
             setTimeout(function(){
               ui.item.find('.' + opts.widgetTitleClass).removeClass('noclick');
              }, 300);
             // Line added below to fix widgetDropped to also see when dropped in same column
-            dashboard.element.trigger("dashboardSaveState");
+            dashboard.element.trigger("dashboardSaveState",{"widget":w});
         }
 
       });
@@ -506,6 +507,8 @@
 
       wi.element.trigger('widgetDeleted', {"widget":wi});
       wi.element.remove();
+      dashboard.log('dashboardStateChange event thrown for widget ' + widget.id,2);
+      dashboard.element.trigger("dashboardStateChange",{"stateChange":"widgetRemoved","widget":wi});
       return false;
     });
         
