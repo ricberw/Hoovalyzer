@@ -1,3 +1,7 @@
+body {
+  background-color: #DCD8BC;
+}
+
 .ui-icon {
   cursor:default;
 }
@@ -5,7 +9,7 @@
   cursor:move;
 }
 .column {
-  min-height:1500px;
+  min-height:800px;
 }
 
 #layout-dialog .selected {
@@ -27,6 +31,49 @@
   font-weight:bold;
   color: #aaaaaa;
   padding: 5px 5px 5px 5px;
+}
+
+.loginbar {
+  margin-left:auto;
+  margin-right:auto;
+  width:821px;
+  align:middle;
+}
+
+#loginbar .formfield {
+  width: 230px;
+}
+
+.loginbox {
+position: absolute;
+top: 40px;
+right: 30px;
+padding: 1px 5px 5px 5px;
+width: 200px;
+border-style: dotted;
+border-width: 1px;
+font-weight: bold;
+}
+
+.loginfield {
+float: right;
+}
+
+.addbox {
+position: absolute;
+top: 154px;
+left: 20px; 
+}
+
+#endtime, #starttime {
+    background-image:url("/static/images/calendar.png");
+    background-position:right center;
+    background-repeat:no-repeat; }
+
+.fieldcontainer {
+  padding:5px 5px 5px 5px;
+  float:left;
+  text-align:center;
 }
 
 .dashboard {
@@ -98,17 +145,20 @@ body {
   height:176px;
 }
 .headerlink {
-  color:#ffffff;
+  color:#000000;
 }
 .headerlinks {
   text-align:right;
-  margin-right:20px;
+  margin-right:36px;
   line-height:24px;
-  text-decoration:underline;
   font-weight:bold;
+  position: absolute;
+  right: 1px;
+  top: 5px;
 }
 .headerbox {
   height:148px;
+  float: left;
 }
 
 .ui-widget-overlay {

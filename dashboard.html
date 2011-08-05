@@ -57,22 +57,22 @@ function findInstances(arr) {
 
 // Write input-start-end form to "Welcome" widget    
 function insertoutputs(input_names, input_keys){
-	writeout = "Fill out the following details, then click <b>View Statistics</b> to update the graphs below.<form>";
-	writeout = writeout+"<b>Input:</b> <select name='inputname' id='inputname'>";
+	//writeout = "Fill out the following details, then click <b>View Statistics</b> to update the graphs below.<form>";
+	writeout = writeout+"<div class='fieldcontainer'><b>Input:</b> <select name='inputname' id='inputname'>";
 	for (i = 0; i<input_names.length; i++){
 	writeout = writeout+"<option value='"+input_names[i]+"'>"+input_names[i]+"</option>";
 	}
-	writeout = writeout+"</select><br>";
-	writeout = writeout+"<b>Start:</b> <input name='starttime' id='starttime' value='NOW-7DAYS' type='Text' size='31'><br>";
-	writeout = writeout+"<b>End:</b> <input name='endtime' id='endtime' value='NOW' type='Text' size='31'><br>";
-	writeout = writeout+"<input type='button' value='Get Data' onclick='javascript:stats();facets();'></form>";
+	writeout = writeout+"</select></div>";
+	writeout = writeout+"<div class='fieldcontainer'><b>Start:</b> <input name='starttime' class='formfield' id='starttime' value='NOW-7DAYS' type='Text' size='41'></div>";
+	writeout = writeout+"<div class='fieldcontainer'><b>End:</b> <input name='endtime' class='formfield' id='endtime' value='NOW' type='Text' size='41'></div>";
+	writeout = writeout+"<div class='fieldcontainer'><input type='button' value='Get Data!' onclick='javascript:stats();facets();'></div></form>";
 
-	document.getElementById("closeform").innerHTML = writeout;
+	document.getElementById("loginbar").innerHTML = writeout;
 
 	var datetimepicker = document.createElement( 'script' );
 	datetimepicker.type = 'text/javascript';
 	datetimepicker.src = 'static/js/datetimepicker.js';
-	$('#closeform').append( datetimepicker );
+	$('#loginbar').append( datetimepicker );
 }
 
 
@@ -155,7 +155,7 @@ function createPie(statsjson, type, div, title) {
 	    if(document.getElementById(div)){
 	    data = createDataArray(statsjson, type, title, 'reg');
 	    var chart = new google.visualization.PieChart( document.getElementById(div) );
-            chart.draw(data, {width: '100%', height: 300, is3D: true, title: title, legendTextStyle: {fontSize: 10}});
+            chart.draw(data, {width: '100%', height: 300, is3D: true, backgroundColor: 'transparent', title: title, legendTextStyle: {fontSize: 10}});
 	    }
 }
 
@@ -164,7 +164,7 @@ function createArea(statsjson, type, div, title) {
             if(document.getElementById(div)){
 	    data = createDataArray(statsjson, type, title, 'num');
             var chart = new google.visualization.ScatterChart( document.getElementById(div) );
-            chart.draw(data, {width: '100%', height: 300, title: title, legend: 'none', hAxis: {title: 'Page Size (bytes)'}, vAxis: {title: 'Instances'}});
+            chart.draw(data, {width: '100%', height: 300, title: title, backgroundColor: 'transparent', legend: 'none', hAxis: {title: 'Page Size (bytes)'}, vAxis: {title: 'Instances'}});
 	    }
 }
 
@@ -194,7 +194,7 @@ function stats(){
 		refresh(statsjson);
         },
                 "json");
-       $('#addwidget').html('<a class="openaddwidgetdialog" href="#" onclick="javascript:loadedYet++;">Add Widget</a>');
+       $('#addwidget').html('<a class="openaddwidgetdialog headerlink" style="font-weight: bold;" href="#" onclick="javascript:loadedYet++;">Add Widget</a>');
 
 }
 
@@ -253,8 +253,9 @@ function login(){
                 }
 
 		document.getElementById('loginbox').innerHTML = '';
+		$('#loginbox').css('display','none');
 
-		$('#headerlinks').html('<a class="editlayout headerlink" href="#">Edit layout</a> | <a onclick="javascript:clearcookie();" class="headerlink">Logout (Clear Cookies)</a>');
+		$('#headerlinks').html('<a class="editlayout headerlink" href="#">Edit layout</a> - <a href="#" onclick="javascript:clearcookie();" class="headerlink">Logout (Clear Cookies)</a>');
 
        $.post('/', {logglyname: Get_Cookie('logglyuser'), 'logglypass': Get_Cookie('logglypass'), 'logglysub': Get_Cookie('logglysub')},
        		function(json){
@@ -288,13 +289,13 @@ Delete_Cookie('logglyuser', '/', '');
 Delete_Cookie('logglypass', '/', '');
 Delete_Cookie('logglysub', '/', '');
 Delete_Cookie('mywidgets', '/', '');
-document.getElementById('contentbox').innerHTML = "Cookies cleared. Please wait...";
+document.getElementById('loginbar').innerHTML = "Cookies cleared. Please wait...";
 setTimeout('window.location = "/"',3000);
 }
 
 	// Check for cookie with user's widget settings - if !exists, just show "Welcome" widget
 	if(!Get_Cookie('mywidgets')){
-        	mywidgets = JSON.parse('{"layout":"layout2","data":[{"title":"Welcome","id":"widget0","column":"first","url":"static/dashboardplugin/demo/widgets/widget0.html","editurl":"static/dashboardplugin/demo/widgets/editwidget0.html","open":true}]}');
+        	mywidgets = JSON.parse('{"layout":"layout5","data":[{"title":"User Agent Pie Chart","id":"w04","column":"first","editurl":"undefined","open":true,"url":"static/dashboardplugin/demo/widgets/widget4.html","metadata":{}},{"title":"Hits Graph","id":"w01","column":"first","editurl":"undefined","open":true,"url":"static/dashboardplugin/demo/widgets/widget1.html","metadata":{}},{"title":"Status Pie Chart","id":"w02","column":"second","editurl":"undefined","open":true,"url":"static/dashboardplugin/demo/widgets/widget2.html","metadata":{}},{"title":"Page Size Scatterplot","id":"w05","column":"second","editurl":"undefined","open":true,"url":"static/dashboardplugin/demo/widgets/widget5.html","metadata":{}},{"title":"Referrers Pie Chart","id":"w03","column":"third","editurl":"undefined","open":true,"url":"static/dashboardplugin/demo/widgets/widget3.html","metadata":{}},{"title":"Path Table","id":"w10","column":"third","editurl":"undefined","open":true,"url":"static/dashboardplugin/demo/widgets/widget10.html","metadata":{}}]}');
 		Set_Cookie('mywidgets', JSON.stringify(mywidgets), '', '/', '', '');
         } else {
         	mywidgets = JSON.parse(Get_Cookie('mywidgets'));
@@ -440,11 +441,26 @@ $(window).resize(function() {
     <div class="headerbox">
       <div id="switcher"></div>
     </div>
+    <div id="loginbox" class="loginbox">
+<form>Login with your Loggly account:<div class="loginfield">Subdomain:<input type ='text' name='subdomain' id='subdomain'/></div><div class="loginfield">Username: <input type='text' name='user' id = 'user':/></div><div class="loginfield">Password: <input type='password' name='password' id = 'password' /></div><div class="loginfield"><INPUT TYPE='button' onClick='login(); return false;' VALUE='Login!'></div></form>
+<script>
+if(Get_Cookie('logglyuser')){
+$(document).ready(function(){
+login();
+});
+}
+</script>
+    </div>
     <div class="headerlinks" id="headerlinks">
       <a class="editlayout headerlink" href="#">Edit layout</a>
     </div>
   </div>
 
+  <div class="loginbar" id="loginbar">
+  </div>
+
+  <div class="addbox" id="addwidget">
+  </div>
 
   <div id="dashboard" class="dashboard">
     <!-- this HTML covers all layouts. The 5 different layouts are handled by setting another layout classname -->
