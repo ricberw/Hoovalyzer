@@ -179,6 +179,11 @@
       // add the widget to the column
       var wid = obj.id;
 
+      // if widget already exists, do not add another instance
+      if($('#'+wid).length > 0){
+      return wid;
+      } 
+
       // check if the widget is already registered and available in the dom
       if (typeof dashboard.widgets[wid] != 'undefined' && $('#' + wid).length > 0) {
         var wi = $('#' + wid);

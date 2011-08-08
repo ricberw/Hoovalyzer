@@ -244,7 +244,6 @@ function clearcookie(){
 Delete_Cookie('logglyuser', '/', '');
 Delete_Cookie('logglypass', '/', '');
 Delete_Cookie('logglysub', '/', '');
-Delete_Cookie('mywidgets', '/', '');
 document.getElementById('loginbar').innerHTML = "Cookies cleared. Please wait...";
 setTimeout('window.location = "/"',3000);
 }
@@ -283,17 +282,11 @@ function login(){
                  for (j=0;j<json.length;j++){
                         for (i=0;i<2;i++){
                                 if(i == 0)
-                                        /*
                                         if(json[j].service.name == "HTTP" & json[j].format == "json")
                                                 input_names.push(json[j].name);
-                                        */
-                                        input_names.push(json[j].name);
                                 if(i == 1){
-                                        /*
                                         if(json[j].service.name == "HTTP" & json[j].format == "json")
                                                 input_keys.push(json[j].input_token);
-                                        */
-                                        input_keys.push(json[j].input_token);
                                 }
                         }
                  }
@@ -335,12 +328,6 @@ function login(){
 
             layouts :
               [
-                { title: "Layout1",
-                  id: "layout1",
-                  image: "static/dashboardplugin/demo/layouts/layout1.png",
-                  html: '<div class="layout layout-a"><div class="column first column-first"></div></div>',
-                  classname: 'layout-a'
-                },
                 { title: "Layout2",
                   id: "layout2",
                   image: "static/dashboardplugin/demo/layouts/layout2.png",
@@ -406,6 +393,19 @@ function login(){
 			refreshf(hitsjson);
 		}
 	});
+
+	dashboard.element.live('dashboardLayoutChanged', function(e, o) {
+                Set_Cookie('mywidgets', JSON.stringify(JSON.parse(dashboard.serialize())), '', '/', '', '');
+                mywidgets = JSON.parse(Get_Cookie('mywidgets'));
+                if(statsjson.data){
+                        refresh(statsjson);
+                }
+                if(hitsjson.data){
+                        refreshf(hitsjson);
+                }
+
+	});
+
 	dashboard.element.live('dashboardSaveState', function(e, o) {
 		Set_Cookie('mywidgets', JSON.stringify(JSON.parse(dashboard.serialize())), '', '/', '', '');
 		mywidgets = JSON.parse(Get_Cookie('mywidgets'));

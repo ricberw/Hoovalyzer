@@ -4,6 +4,6 @@ if(statsjson.data){
         // Create Status Graph
 	createTable(statsjson, 'referrer', 'referrertable', 'Referrers', {showRowNumber: true, width: '100%', pageSize: 10, page: 'enable', sort: 'enable', sortColumn: 1, sortAscending: false});
 } else {
-        $('#referrertable').html('Please click "Get Data" in the "Welcome" widget to generate graphs.');
+        $('#referrertable').html('Please choose an input, then click "Get Data" above to generate graphs.');
 }
 </script>
