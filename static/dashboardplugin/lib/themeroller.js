@@ -2,7 +2,7 @@
 ---------------------------------------------------------------------*/
 $.fn.themeswitcher = function(settings){
   var options = jQuery.extend({
-    loadTheme: null,
+    loadTheme: 'Pepper Grinder',
     initialText: 'Switch Theme',
     width: 150,
     height: 200,

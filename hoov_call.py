@@ -30,7 +30,7 @@ def get_data(logglyname, logglypass, logglysub):
 	return auth_url(url, user, passwd)
 
 def get_facets(logglyname, logglypass, logglysub, inputname, searchquery, starttime, endtime):
-        url = 'http://'+logglysub+'.loggly.com/api/facets/date/?q=inputname:'+inputname+'&from='+starttime+'&until='+endtime+'&gap=%2B1DAY'
+        url = 'http://'+logglysub+'.loggly.com/api/facets/date/?q=inputname:'+inputname+'&from='+starttime+'&until='+endtime
 	user = logglyname
         passwd = logglypass
 

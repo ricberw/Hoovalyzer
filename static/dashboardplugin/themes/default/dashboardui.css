@@ -36,8 +36,18 @@ body {
 .loginbar {
   margin-left:auto;
   margin-right:auto;
-  width:821px;
+  width:860px;
   align:middle;
+  text-align:center;
+  font-size:16px;
+  font-family: "Georgia";
+}
+
+.infobox {
+  padding: 15px 1px 5px 5px;
+  font-family: "Georgia";
+  font-size: 16px;
+  text-align: center;
 }
 
 #loginbar .formfield {
@@ -45,18 +55,20 @@ body {
 }
 
 .loginbox {
-position: absolute;
-top: 40px;
-right: 30px;
 padding: 1px 5px 5px 5px;
-width: 200px;
-border-style: dotted;
-border-width: 1px;
-font-weight: bold;
+width: 230px;
+float: right;
 }
 
-.loginfield {
-float: right;
+.screenshot {
+float: left;
+}
+
+.midcontainer {
+width: 880px;
+margin-left: auto;
+margin-right: auto;
+height: 475px
 }
 
 .addbox {

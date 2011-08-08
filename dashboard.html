@@ -85,7 +85,8 @@ $().ready(function(){
                         }else if(x.status==404){
                         alert('Something is acting up - please try again later.');
                         }else if(x.status==500){
-			document.getElementById("output").innerHTML = "Login error - please wait...";
+			document.getElementById("loginbar").innerHTML = "Login error - please wait...";
+			setTimeout('clearcookie()',1500);
 			}else if(e=='parsererror'){
                         alert('Error.\nParsing JSON Request failed.');
                         }else if(e=='timeout'){
@@ -238,51 +239,6 @@ function refreshf(hitsjson){
         hitsTable(hitsjson, 'data', 'hitstable', 'Hits');
 }
 
-// Login to Loggly and grab inputs
-function login(){
-		if(!Get_Cookie('logglyuser')) {
-                Set_Cookie('logglyuser', $('#user').val(), '', '/', '', '');
-                }
-
-                if(!Get_Cookie('logglypass')) {
-                Set_Cookie('logglypass', $('#password').val(), '', '/', '', '');
-                }
-
-                if(!Get_Cookie('logglysub')) {
-                Set_Cookie('logglysub', $('#subdomain').val(), '', '/', '', '');
-                }
-
-		document.getElementById('loginbox').innerHTML = '';
-		$('#loginbox').css('display','none');
-
-		$('#headerlinks').html('<a class="editlayout headerlink" href="#">Edit layout</a> - <a href="#" onclick="javascript:clearcookie();" class="headerlink">Logout (Clear Cookies)</a>');
-
-       $.post('/', {logglyname: Get_Cookie('logglyuser'), 'logglypass': Get_Cookie('logglypass'), 'logglysub': Get_Cookie('logglysub')},
-       		function(json){
-		 var input_keys = new Array(0);
-		 var input_names = new Array(0);
-	         for (j=0;j<json.length;j++){
-	        	for (i=0;i<2;i++){
-	         		if(i == 0)
-					/*
-	         			if(json[j].service.name == "HTTP" & json[j].format == "json")
-						input_names.push(json[j].name);
-					*/
-					input_names.push(json[j].name);
-	         		if(i == 1){	
-					/*
-	         			if(json[j].service.name == "HTTP" & json[j].format == "json")
-						input_keys.push(json[j].input_token);
-					*/
-					input_keys.push(json[j].input_token);
-	         	    	}	
-	         	}
-	         }
-		insertoutputs(input_names, input_keys);
-       		},
-       		"json");
-}
-
 // Clear all cookies and send back to the homepage (logout)
 function clearcookie(){
 Delete_Cookie('logglyuser', '/', '');
@@ -293,14 +249,57 @@ document.getElementById('loginbar').innerHTML = "Cookies cleared. Please wait...
 setTimeout('window.location = "/"',3000);
 }
 
-	// Check for cookie with user's widget settings - if !exists, just show "Welcome" widget
-	if(!Get_Cookie('mywidgets')){
-        	mywidgets = JSON.parse('{"layout":"layout5","data":[{"title":"User Agent Pie Chart","id":"w04","column":"first","editurl":"undefined","open":true,"url":"static/dashboardplugin/demo/widgets/widget4.html","metadata":{}},{"title":"Hits Graph","id":"w01","column":"first","editurl":"undefined","open":true,"url":"static/dashboardplugin/demo/widgets/widget1.html","metadata":{}},{"title":"Status Pie Chart","id":"w02","column":"second","editurl":"undefined","open":true,"url":"static/dashboardplugin/demo/widgets/widget2.html","metadata":{}},{"title":"Page Size Scatterplot","id":"w05","column":"second","editurl":"undefined","open":true,"url":"static/dashboardplugin/demo/widgets/widget5.html","metadata":{}},{"title":"Referrers Pie Chart","id":"w03","column":"third","editurl":"undefined","open":true,"url":"static/dashboardplugin/demo/widgets/widget3.html","metadata":{}},{"title":"Path Table","id":"w10","column":"third","editurl":"undefined","open":true,"url":"static/dashboardplugin/demo/widgets/widget10.html","metadata":{}}]}');
-		Set_Cookie('mywidgets', JSON.stringify(mywidgets), '', '/', '', '');
-        } else {
-        	mywidgets = JSON.parse(Get_Cookie('mywidgets'));
-        }
+// Check for cookie with user's widget settings - if !exists, just show "Welcome" widget
+if(!Get_Cookie('mywidgets')){
+        mywidgets = JSON.parse('{"layout":"layout5","data":[{"title":"User Agent Pie Chart","id":"w04","column":"first","editurl":"undefined","open":true,"url":"static/dashboardplugin/demo/widgets/widget4.html","metadata":{}},{"title":"Hits Graph","id":"w01","column":"first","editurl":"undefined","open":true,"url":"static/dashboardplugin/demo/widgets/widget1.html","metadata":{}},{"title":"Status Pie Chart","id":"w02","column":"second","editurl":"undefined","open":true,"url":"static/dashboardplugin/demo/widgets/widget2.html","metadata":{}},{"title":"Page Size Scatterplot","id":"w05","column":"second","editurl":"undefined","open":true,"url":"static/dashboardplugin/demo/widgets/widget5.html","metadata":{}},{"title":"Referrers Pie Chart","id":"w03","column":"third","editurl":"undefined","open":true,"url":"static/dashboardplugin/demo/widgets/widget3.html","metadata":{}},{"title":"Path Table","id":"w10","column":"third","editurl":"undefined","open":true,"url":"static/dashboardplugin/demo/widgets/widget10.html","metadata":{}}]}');
+	Set_Cookie('mywidgets', JSON.stringify(mywidgets), '', '/', '', '');
+} else {
+        mywidgets = JSON.parse(Get_Cookie('mywidgets'));
+}
 
+// Login to Loggly and grab inputs
+function login(){
+                if(!Get_Cookie('logglyuser')) {
+                Set_Cookie('logglyuser', $('#user').val(), '', '/', '', '');
+                }
+
+                if(!Get_Cookie('logglypass')) {
+                Set_Cookie('logglypass', $('#password').val(), '', '/', '', '');
+                }
+
+                if(!Get_Cookie('logglysub')) {
+                Set_Cookie('logglysub', $('#subdomain').val(), '', '/', '', '');
+                }                document.getElementById('loginbox').innerHTML = '';
+                $('#loginbox').css('display','none');
+
+                $('#headerlinks').html('<a class="editlayout headerlink" href="#">Edit layout</a> - <a href="#" onclick="javascript:clearcookie();" class="headerlink">Logout (Clear Cookies)</a>');
+
+		$('#infobox').html('');
+
+       $.post('/', {logglyname: Get_Cookie('logglyuser'), 'logglypass': Get_Cookie('logglypass'), 'logglysub': Get_Cookie('logglysub')},
+                function(json){
+                 var input_keys = new Array(0);
+                 var input_names = new Array(0);
+                 for (j=0;j<json.length;j++){
+                        for (i=0;i<2;i++){
+                                if(i == 0)
+                                        /*
+                                        if(json[j].service.name == "HTTP" & json[j].format == "json")
+                                                input_names.push(json[j].name);
+                                        */
+                                        input_names.push(json[j].name);
+                                if(i == 1){
+                                        /*
+                                        if(json[j].service.name == "HTTP" & json[j].format == "json")
+                                                input_keys.push(json[j].input_token);
+                                        */
+                                        input_keys.push(json[j].input_token);
+                                }
+                        }
+                 }
+                insertoutputs(input_names, input_keys);
+                },
+                "json");
 
       // This is the code for definining the dashboard
       $(document).ready(function() {
@@ -422,6 +421,8 @@ setTimeout('window.location = "/"',3000);
         }
       });
 
+}
+
 // If the window is resized, refresh the contents to fix the width of each widget
 $(window).resize(function() {
 	refresh(statsjson);
@@ -441,8 +442,19 @@ $(window).resize(function() {
     <div class="headerbox">
       <div id="switcher"></div>
     </div>
-    <div id="loginbox" class="loginbox">
-<form>Login with your Loggly account:<div class="loginfield">Subdomain:<input type ='text' name='subdomain' id='subdomain'/></div><div class="loginfield">Username: <input type='text' name='user' id = 'user':/></div><div class="loginfield">Password: <input type='password' name='password' id = 'password' /></div><div class="loginfield"><INPUT TYPE='button' onClick='login(); return false;' VALUE='Login!'></div></form>
+    <div class="headerlinks" id="headerlinks">
+    </div>
+  </div>
+
+  <div class="loginbar" id="loginbar">
+  </div>
+  <br>
+  <div class="infobox" id="infobox">
+<p>Visualize Apache access log data in seconds with <b>Hoovalyzer</b> - the newest cloud-based beaver-friendly analytics application.</p>
+<div class="midcontainer" id="midcontainer">
+<div class="screenshot" id="screenshot"><img src="static/images/hoovalyzerscreenshots.png"></div>
+<div class="loginbox" id="loginbox">
+<form><img src="static/images/loggly.png"><div class="loginfield"><input type ='text' name='subdomain' id='subdomain' value='<subdomain>' onfocus='value=""'/></div><div class="loginfield"><input type='text' name='user' id = 'user' value='<username>' onfocus='value=""'/></div><div class="loginfield"><input type='password' name='password' id = 'password' value='password' onfocus='value=""'/></div><div class="loginfield"><INPUT TYPE='button' onClick='login(); return false;' VALUE='Login!'></div></form>
 <script>
 if(Get_Cookie('logglyuser')){
 $(document).ready(function(){
@@ -450,13 +462,9 @@ login();
 });
 }
 </script>
-    </div>
-    <div class="headerlinks" id="headerlinks">
-      <a class="editlayout headerlink" href="#">Edit layout</a>
-    </div>
-  </div>
-
-  <div class="loginbar" id="loginbar">
+</div>
+</div>
+<p>Hoovalyzer uses <b>Loggly</b> to collect and serve log data, so be sure to <a href="http://vimeo.com/19813490">meet Hoover</a> (the Beaver), <a href="https://app.loggly.com/pricing/">create an account</a>, and <a href="http://wiki.loggly.com/apachelogging">start sending data</a>.</p>  
   </div>
 
   <div class="addbox" id="addwidget">
