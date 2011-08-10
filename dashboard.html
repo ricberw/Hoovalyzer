@@ -63,6 +63,9 @@ function findInstances(arr) {
 
 // Write input-start-end form to "Welcome" widget    
 function insertoutputs(input_names, input_keys){
+         if(input_names == 0){
+         alert("You do not have any json enabled http inputs.  Please go to http://loggly.com a json enabled http input")
+         }
 	//writeout = "Fill out the following details, then click <b>View Statistics</b> to update the graphs below.<form>";
 	writeout = writeout+"<div class='fieldcontainer'><b>Input:</b> <select name='inputname' id='inputname'>";
 	for (i = 0; i<input_names.length; i++){
