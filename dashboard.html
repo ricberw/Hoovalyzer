@@ -31,6 +31,7 @@ var a = [], b = [], prev;
 o = {};
 widgetID = 0;
 loadedYet = 0;
+maxResults = 0;
 
 // Find data
 function find(json, type) {
@@ -63,16 +64,29 @@ function insertoutputs(input_names, input_keys){
 	writeout = writeout+"<option value='"+input_names[i]+"'>"+input_names[i]+"</option>";
 	}
 	writeout = writeout+"</select></div>";
-	writeout = writeout+"<div class='fieldcontainer'><b>Start:</b> <input name='starttime' class='formfield' id='starttime' value='NOW-7DAYS' type='Text' size='41'></div>";
-	writeout = writeout+"<div class='fieldcontainer'><b>End:</b> <input name='endtime' class='formfield' id='endtime' value='NOW' type='Text' size='41'></div>";
+	writeout = writeout+"<div class='fieldcontainer'><b>Start:</b> <input name='starttime' class='formfield' id='starttime' value='NOW-7DAYS' type='Text' size='41'><button id='starttimebutton'><img src='static/images/calendar.png'/></button></div>";
+	writeout = writeout+"<div class='fieldcontainer'><b>End:</b> <input name='endtime' class='formfield' id='endtime' value='NOW' type='Text' size='41'><button id='endtimebutton'><img src='static/images/calendar.png'/></button></div>";
+	//writeout = writeout+"<div class='fieldcontainer'><b>Top:</b> <input name='maxResults' id='maxResults' value='10' type='Text' size='2'></div>";
 	writeout = writeout+"<div class='fieldcontainer'><input type='button' value='Get Data!' onclick='javascript:stats();facets();'></div></form>";
 
 	document.getElementById("loginbar").innerHTML = writeout;
 
+        // call the remember-my-field function
+        remember('[name=starttime],[name=endtime],[name=inputname],[name=maxResults]');
+
+	// call the date time picker
 	var datetimepicker = document.createElement( 'script' );
 	datetimepicker.type = 'text/javascript';
 	datetimepicker.src = 'static/js/datetimepicker.js';
 	$('#loginbar').append( datetimepicker );
+
+	// set max results
+	maxResults = $('#maxResults').val();
+	maxResults = parseInt(maxResults);
+
+	// load data from Loggly when logged in
+	stats();
+	facets();
 }
 
 
@@ -86,6 +100,7 @@ $().ready(function(){
                         alert('Something is acting up - please try again later.');
                         }else if(x.status==500){
 			document.getElementById("loginbar").innerHTML = "Login error - please wait...";
+			document.getElementById("dashboard").innerHTML = "";
 			setTimeout('clearcookie()',1500);
 			}else if(e=='parsererror'){
                         alert('Error.\nParsing JSON Request failed.');
@@ -130,10 +145,9 @@ function createDataArray(statsjson, type, title, dataType){
                if(j > jsonlength){
                  break;
                }
-               // Check for empty value
-                if(!a[z])
-                a[z] = "Unknown";
-
+               // Check for empty value, if empty do not include in table
+                if(a[z]=='-'){
+		} else {
 	       if(dataType == "reg"){
 	       columnData = a[z];
 	       }
@@ -146,8 +160,13 @@ function createDataArray(statsjson, type, title, dataType){
 
 	       data.setValue(j, 1,b[z]);
                data.setValue(j, 0,columnData);
+		}
                j= j+1;
             }
+
+	    // sort data so we can pull top X results
+	    data.sort([{column: 1, desc: true}]);
+
 	    return data;
 }
 
@@ -155,6 +174,9 @@ function createDataArray(statsjson, type, title, dataType){
 function createPie(statsjson, type, div, title) {
 	    if(document.getElementById(div)){
 	    data = createDataArray(statsjson, type, title, 'reg');
+	    if(data.getNumberOfRows() > maxResults){
+	    data.removeRows(maxResults, 999999)
+	    }
 	    var chart = new google.visualization.PieChart( document.getElementById(div) );
             chart.draw(data, {width: '100%', height: 300, is3D: true, backgroundColor: 'transparent', title: title, legendTextStyle: {fontSize: 10}});
 	    }
@@ -182,20 +204,27 @@ function createTable(statsjson, type, div, title, options) {
 function hitsTable(hitsjson, type, div, title) {
             if(document.getElementById(div)){
 	    data = createDataArray(hitsjson, type, title, 'date');
-	    var chart = new google.visualization.AnnotatedTimeLine( document.getElementById(div) );
-            chart.draw(data, {displayAnnotations: false, wmode: 'transparent', width: '100%', height: 300, title: title});
+	    //var chart = new google.visualization.AnnotatedTimeLine( document.getElementById(div) );
+            //chart.draw(data, {displayAnnotations: false, wmode: 'transparent', width: '100%', height: 300, title: title});
+	    data.sort([{column: 0, desc: false}]);
+	    var chart = new google.visualization.LineChart(document.getElementById(div));
+	    chart.draw(data, {width: '100%', height: 300, is3D: true, legend: 'none', backgroundColor: 'transparent', title: title});
 	    }
 }
 
 // Grab search data from Loggly's API
 function stats(){
+	// set max results
+	maxResults = parseInt($('#maxResults').val());
+
        $.post('/grab', {logglyname: Get_Cookie('logglyuser'), 'logglypass': Get_Cookie('logglypass'), 'logglysub': Get_Cookie('logglysub'), 'inputname': $('#inputname').val(), 'searchquery': '', 'starttime': encodeURIComponent($('#starttime').val()), 'endtime': encodeURIComponent($('#endtime').val())},
 	function(json){
 		statsjson = json;
 		refresh(statsjson);
         },
                 "json");
-       $('#addwidget').html('<a class="openaddwidgetdialog headerlink" style="font-weight: bold;" href="#" onclick="javascript:loadedYet++;">Add Widget</a>');
+
+	$('#headerlinks').html('<a class="openaddwidgetdialog headerlink" style="font-weight: bold;" href="#" onclick="javascript:loadedYet++;">Add Widget</a> - <a href="#" class="headerlink" onclick="javascript:$(\'#editOptions\').dialog()">Change Options</a> - <a class="editlayout headerlink" href="#">Edit layout</a> - <a href="#" onclick="javascript:clearcookie();" class="headerlink">Logout (Clear Cookies)</a>');
 
 }
 
@@ -271,7 +300,7 @@ function login(){
                 }                document.getElementById('loginbox').innerHTML = '';
                 $('#loginbox').css('display','none');
 
-                $('#headerlinks').html('<a class="editlayout headerlink" href="#">Edit layout</a> - <a href="#" onclick="javascript:clearcookie();" class="headerlink">Logout (Clear Cookies)</a>');
+                $('#headerlinks').html('<a href="#" class="headerlink" onclick="javascript:$(\'#editOptions\').dialog()">Change Options</a> - <a class="editlayout headerlink" href="#">Edit layout</a> - <a href="#" onclick="javascript:clearcookie();" class="headerlink">Logout (Clear Cookies)</a>');
 
 		$('#infobox').html('');
 
@@ -304,6 +333,9 @@ function login(){
 
         // call for the themeswitcher
         $('#switcher').themeswitcher();
+	
+	// hide the switcher dropdown
+	$('#switcher').hide();
 
         function initDashboard() {
 
@@ -429,6 +461,26 @@ $(window).resize(function() {
 	refreshf(hitsjson);
 });
 
+// Function to remember form field values
+function remember( selector ){
+    $(selector).each(
+        function(){
+                //if this item has been cookied, restore it
+                var name = $(this).attr('name');
+                if( Get_Cookie( name ) ){
+                        $(this).val( Get_Cookie(name) );
+                }
+                //assign a change function to the item to cookie it
+                $(this).change(
+                        function(){
+                                Set_Cookie(name, $(this).val(), '', '/', '', '');
+                        }
+                );
+        }
+    );
+}
+
+
     </script>
 
     <link rel="stylesheet" type="text/css" href="static/dashboardplugin/themes/default/dashboardui.css" />
@@ -464,7 +516,7 @@ login();
 </script>
 </div>
 </div>
-<p>Hoovalyzer uses <b>Loggly</b> to collect and serve log data, so be sure to <a href="http://vimeo.com/19813490">meet Hoover</a> (the Beaver), <a href="https://app.loggly.com/pricing/">create an account</a>, and <a href="http://wiki.loggly.com/apachelogging">start sending data</a>.</p>  
+<p>Hoovalyzer uses <b>Loggly</b> to collect and serve log data, so be sure to <a href="http://vimeo.com/19813490" target="_blank">meet Hoover</a> (the Beaver), <a href="https://app.loggly.com/pricing/" target="_blank">create an account</a>, and <a href="http://wiki.loggly.com/apachelogging" target="_blank">start sending data</a>.</p>  
   </div>
 
   <div class="addbox" id="addwidget">
@@ -478,6 +530,10 @@ login();
       <div class="column third column-third"></div>
     </div>
   </div>
+
+<div class="editOptions" id="editOptions" title="Edit Options" style="display: none">
+<p><b># of Results:</b> <input name='maxResults' id='maxResults' value='10' type='Text' size='2'> (for pie charts)</p>
+</div>
 
   </body>
 </html>

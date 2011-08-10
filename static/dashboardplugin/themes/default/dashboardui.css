@@ -1,5 +1,5 @@
 body {
-  background-color: #DCD8BC;
+  background-color: #ffffff;
 }
 
 .ui-icon {
@@ -36,7 +36,7 @@ body {
 .loginbar {
   margin-left:auto;
   margin-right:auto;
-  width:860px;
+  width:980px;
   align:middle;
   text-align:center;
   font-size:16px;
@@ -51,7 +51,7 @@ body {
 }
 
 #loginbar .formfield {
-  width: 230px;
+  width: 216px;
 }
 
 .loginbox {
@@ -76,11 +76,6 @@ position: absolute;
 top: 154px;
 left: 20px; 
 }
-
-#endtime, #starttime {
-    background-image:url("/static/images/calendar.png");
-    background-position:right center;
-    background-repeat:no-repeat; }
 
 .fieldcontainer {
   padding:5px 5px 5px 5px;

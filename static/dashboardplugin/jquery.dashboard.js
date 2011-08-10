@@ -667,7 +667,7 @@
       dashboard.element.trigger("dashboardOpenLayoutDialog");
       return false;
     });
-    
+
     dashboard.element.live('dashboardOpenLayoutDialog', function(){        
       dashboard.log('Opening dialog ' + layoutOpts.dialogId,1);
       $('#' + layoutOpts.dialogId).dialog('open');
@@ -690,7 +690,6 @@
       
       bindSelectLayout();
     });
-
 
     dashboard.element.live('dashboardStateChange', function(){   
        if (typeof opts.stateChangeUrl != 'undefined' && opts.stateChangeUrl != null && opts.stateChangeUrl != '') {
@@ -831,7 +830,7 @@
       dashboard.element.trigger('dashboardOpenWidgetDialog');
       return false;
     });
-    
+
     dashboard.element.live('dashboardCloseWidgetDialog', function(){   
       // close the dialog
       $('#' + addOpts.dialogId).dialog('close');
