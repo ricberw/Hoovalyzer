@@ -2,7 +2,7 @@
 <script>
 if(statsjson.data){
         // Create Status Graph
-        createPie(statsjson, 'referrer', 'referrerchart', 'Referrers');
+        createReferrer(statsjson, 'referrer', 'referrerchart', 'Referrers');
 } else {
         $('#referrerchart').html('Please choose an input, then click "Get Data" above to generate graphs.');
 }

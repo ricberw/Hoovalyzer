@@ -32,6 +32,11 @@ o = {};
 widgetID = 0;
 loadedYet = 0;
 maxResults = 0;
+charts = [];
+n = 0;
+userAgentChart = '';
+statusChart = '';
+referrerChart = '';
 
 // Find data
 function find(json, type) {
@@ -170,24 +175,81 @@ function createDataArray(statsjson, type, title, dataType){
 	    return data;
 }
 
+// Handle events when a user clicks on a graph to send them to the Loggly shell
+  function selectHandler(chartData, dataTable, type) {
+    var selection = chartData.getSelection();
+    for (var i = 0; i < selection.length; i++) {
+      	var item = selection[i];
+	col1data = dataTable.getFormattedValue(item.row, 0);
+	window.open('https://'+Get_Cookie("logglysub")+'.loggly.com/shell#/_search inputname:'+$("#inputname").val()+' json.'+type+':"'+col1data+'"/_from='+$("#starttime").val()+'/_until='+$("#endtime").val(), '_blank', 'fullscreen=yes', false);
+    }
+  }
+
+  function selectHitsHandler(chartData, dataTable, type) {
+    var selection = chartData.getSelection();
+    for (var i = 0; i < selection.length; i++) {
+        var item = selection[i];
+        col1data = new Date(dataTable.getValue(item.row, 0));
+	col2data = new Date(dataTable.getValue(item.row+1, 0));
+	col1data = col1data.toISOString();
+	col2data = col2data.toISOString();
+        window.open('https://'+Get_Cookie("logglysub")+'.loggly.com/shell#/_search inputname:'+$("#inputname").val()+'/_from='+col1data+'/_until='+col2data, '_blank', 'fullscreen=yes', false);
+    }
+  }
+
+
 // Draw pie charts
-function createPie(statsjson, type, div, title) {
+function createUserAgent(statsjson, type, div, title) {
 	    if(document.getElementById(div)){
-	    data = createDataArray(statsjson, type, title, 'reg');
-	    if(data.getNumberOfRows() > maxResults){
-	    data.removeRows(maxResults, 999999)
-	    }
-	    var chart = new google.visualization.PieChart( document.getElementById(div) );
-            chart.draw(data, {width: '100%', height: 300, is3D: true, backgroundColor: 'transparent', title: title, legendTextStyle: {fontSize: 10}});
+		    userAgentData = createDataArray(statsjson, type, title, 'reg');
+		    if(userAgentData.getNumberOfRows() > maxResults){
+		    userAgentData.removeRows(maxResults, 999999)
+		    }
+		    userAgentChart = new google.visualization.PieChart( document.getElementById(div) );
+		    userAgentChart.draw(userAgentData, {width: '100%', height: 300, is3D: true, backgroundColor: 'transparent', title: title, legendTextStyle: {fontSize: 10}});
+		    google.visualization.events.addListener(userAgentChart, 'select', function(){
+			selectHandler(userAgentChart, userAgentData, type);
+		    });
 	    }
 }
 
-// Draw scatter charts
-function createArea(statsjson, type, div, title) {
+function createStatus(statsjson, type, div, title) {
             if(document.getElementById(div)){
-	    data = createDataArray(statsjson, type, title, 'num');
-            var chart = new google.visualization.ScatterChart( document.getElementById(div) );
-            chart.draw(data, {width: '100%', height: 300, title: title, backgroundColor: 'transparent', legend: 'none', hAxis: {title: 'Page Size (bytes)'}, vAxis: {title: 'Instances'}});
+                    statusData = createDataArray(statsjson, type, title, 'reg');
+                    if(statusData.getNumberOfRows() > maxResults){
+                    statusData.removeRows(maxResults, 999999)
+                    }
+                    statusChart = new google.visualization.PieChart( document.getElementById(div) );
+                    statusChart.draw(statusData, {width: '100%', height: 300, is3D: true, backgroundColor: 'transparent', title: title, legendTextStyle: {fontSize: 10}});
+		    google.visualization.events.addListener(statusChart, 'select', function(){
+			selectHandler(statusChart, statusData, type);
+		    });
+            }
+}
+
+function createReferrer(statsjson, type, div, title) {
+            if(document.getElementById(div)){
+                    referrerData = createDataArray(statsjson, type, title, 'reg');
+                    if(referrerData.getNumberOfRows() > maxResults){
+                    referrerData.removeRows(maxResults, 999999)
+                    }
+                    referrerChart = new google.visualization.PieChart( document.getElementById(div) );
+                    referrerChart.draw(referrerData, {width: '100%', height: 300, is3D: true, backgroundColor: 'transparent', title: title, legendTextStyle: {fontSize: 10}});
+		    google.visualization.events.addListener(referrerChart, 'select', function(){
+			selectHandler(referrerChart, referrerData, type);
+		    });
+            }
+}
+
+// Draw scatter charts
+function createPageSize(statsjson, type, div, title) {
+            if(document.getElementById(div)){
+	    pageSizeData = createDataArray(statsjson, type, title, 'num');
+            pageSizeChart = new google.visualization.ScatterChart( document.getElementById(div) );
+            pageSizeChart.draw(pageSizeData, {width: '100%', height: 300, title: title, backgroundColor: 'transparent', legend: 'none', hAxis: {title: 'Page Size (bytes)'}, vAxis: {title: 'Instances'}});
+	    google.visualization.events.addListener(pageSizeChart, 'select', function(){
+            	selectHandler(pageSizeChart, pageSizeData, type);
+            });
 	    }
 }
 
@@ -201,14 +263,16 @@ function createTable(statsjson, type, div, title, options) {
 }
 
 // Draw timelines
-function hitsTable(hitsjson, type, div, title) {
+function createHitsTable(hitsjson, type, div, title) {
             if(document.getElementById(div)){
-	    data = createDataArray(hitsjson, type, title, 'date');
-	    //var chart = new google.visualization.AnnotatedTimeLine( document.getElementById(div) );
-            //chart.draw(data, {displayAnnotations: false, wmode: 'transparent', width: '100%', height: 300, title: title});
-	    data.sort([{column: 0, desc: false}]);
-	    var chart = new google.visualization.LineChart(document.getElementById(div));
-	    chart.draw(data, {width: '100%', height: 300, is3D: true, legend: 'none', backgroundColor: 'transparent', title: title});
+	    hitsData = createDataArray(hitsjson, type, title, 'date');
+	    hitsData.sort([{column: 0, desc: false}]);
+	    var hitsChart = new google.visualization.ColumnChart(document.getElementById(div));
+	    hitsChart.draw(hitsData, {width: '100%', height: 300, is3D: true, legend: 'none', backgroundColor: 'transparent', title: title});
+	    google.visualization.events.addListener(hitsChart, 'select', function(){
+            	selectHitsHandler(hitsChart, hitsData, type);
+            });
+
 	    }
 }
 
@@ -241,31 +305,31 @@ function facets(){
 // Create graphs and update UI display
 function refresh(statsjson){
 	// Create Status Graph
-	createPie(statsjson, 'status', 'statuschart', 'Status');
+	createStatus(statsjson, 'status', 'statuschart', 'Status');
 
 	// Create URL Table
 	createTable(statsjson, 'url', 'pathtable', 'Path', {showRowNumber: true, width: '100%', pageSize: 10, page: 'enable', sort: 'enable', sortColumn: 1, sortAscending: false});
 
 	// Create Referrer Graph
-	createPie(statsjson, 'referrer', 'referrerchart', 'Referrers');
+	createReferrer(statsjson, 'referrer', 'referrerchart', 'Referrers');
         createTable(statsjson, 'referrer', 'referrertable', 'Referrers', {showRowNumber: true, width: '100%', pageSize: 10, page: 'enable', sort: 'enable', sortColumn: 1, sortAscending: false});
 
 	// Create User Agent Graph
-	createPie(statsjson, 'agent', 'useragentchart', 'User Agent');
+	createUserAgent(statsjson, 'agent', 'useragentchart', 'User Agent');
         createTable(statsjson, 'agent', 'useragenttable', 'User Agent', {showRowNumber: true, width: '100%', pageSize: 10, page: 'enable', sort: 'enable', sortColumn: 1, sortAscending: false});
 
 	// Create Host Table
 	createTable(statsjson, 'host', 'hosttable', 'User IP', {showRowNumber: true, width: '100%', pageSize: 10, page: 'enable', sort: 'enable', sortColumn: 1, sortAscending: false});
 
 	// Create Size Table
-	createArea(statsjson, 'size', 'sizechart', 'Page Size');
+	createPageSize(statsjson, 'size', 'sizechart', 'Page Size');
 }
 
 // Create graphs and update UI display
 function refreshf(hitsjson){
         // Create Hits Table
 	$('#hitstable').css('height','300px');
-        hitsTable(hitsjson, 'data', 'hitstable', 'Hits');
+        createHitsTable(hitsjson, 'data', 'hitstable', 'Hits');
 }
 
 // Clear all cookies and send back to the homepage (logout)

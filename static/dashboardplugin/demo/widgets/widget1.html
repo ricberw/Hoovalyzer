@@ -3,7 +3,7 @@
 if(hitsjson.data){
     	// Create Hits Table
 	$('#hitstable').css('height','300px');
-        hitsTable(hitsjson, 'data', 'hitstable', 'Hits');
+        createHitsTable(hitsjson, 'data', 'hitstable', 'Hits');
 } else {
 	$('#hitstable').html('Please choose an input, then click "Get Data" above to generate graphs.');
 }

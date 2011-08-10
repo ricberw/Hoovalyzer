@@ -2,7 +2,7 @@
 <script>
 if(statsjson.data){
         // Create Status Graph
-        createPie(statsjson, 'status', 'statuschart', 'Status');
+        createStatus(statsjson, 'status', 'statuschart', 'Status');
 } else {
         $('#statuschart').html('Please choose an input, then click "Get Data" above to generate graphs.');
 }

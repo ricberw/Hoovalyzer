@@ -2,7 +2,7 @@
 <script>
 if(statsjson.data){
         // Create Hits Table
-	createArea(statsjson, 'size', 'sizechart', 'Page Size');
+	createPageSize(statsjson, 'size', 'sizechart', 'Page Size');
 } else {
         $('#sizechart').html('Please choose an input, then click "Get Data" above to generate graphs.');
 }
