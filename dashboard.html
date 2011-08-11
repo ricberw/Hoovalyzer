@@ -34,9 +34,7 @@ loadedYet = 0;
 maxResults = 0;
 charts = [];
 n = 0;
-userAgentChart = '';
-statusChart = '';
-referrerChart = '';
+loginerror = 0;
 
 // Find data
 function find(json, type) {
@@ -66,7 +64,6 @@ function insertoutputs(input_names, input_keys){
          if(input_names == 0){
          alert("You do not have any json enabled http inputs.  Please go to http://loggly.com a json enabled http input")
          }
-	//writeout = "Fill out the following details, then click <b>View Statistics</b> to update the graphs below.<form>";
 	writeout = writeout+"<div class='fieldcontainer'><b>Input:</b> <select name='inputname' id='inputname'>";
 	for (i = 0; i<input_names.length; i++){
 	writeout = writeout+"<option value='"+input_names[i]+"'>"+input_names[i]+"</option>";
@@ -74,7 +71,6 @@ function insertoutputs(input_names, input_keys){
 	writeout = writeout+"</select></div>";
 	writeout = writeout+"<div class='fieldcontainer'><b>Start:</b> <input name='starttime' class='formfield' id='starttime' value='NOW-7DAYS' type='Text' size='41'><button id='starttimebutton'><img src='static/images/calendar.png'/></button></div>";
 	writeout = writeout+"<div class='fieldcontainer'><b>End:</b> <input name='endtime' class='formfield' id='endtime' value='NOW' type='Text' size='41'><button id='endtimebutton'><img src='static/images/calendar.png'/></button></div>";
-	//writeout = writeout+"<div class='fieldcontainer'><b>Top:</b> <input name='maxResults' id='maxResults' value='10' type='Text' size='2'></div>";
 	writeout = writeout+"<div class='fieldcontainer'><input type='button' value='Get Data!' onclick='javascript:stats();facets();'></div></form>";
 
 	document.getElementById("loginbar").innerHTML = writeout;
@@ -109,6 +105,7 @@ $().ready(function(){
                         }else if(x.status==500){
 			document.getElementById("loginbar").innerHTML = "Login error - please wait...";
 			document.getElementById("dashboard").innerHTML = "";
+			loginerror = 1;
 			setTimeout('clearcookie()',1500);
 			}else if(e=='parsererror'){
                         alert('Error.\nParsing JSON Request failed.');
@@ -244,6 +241,18 @@ function createReferrer(statsjson, type, div, title) {
             }
 }
 
+function createHitsTable(hitsjson, type, div, title) {
+            if(document.getElementById(div)){
+		    hitsData = createDataArray(hitsjson, type, title, 'date');
+		    hitsData.sort([{column: 0, desc: false}]);
+		    var hitsChart = new google.visualization.ColumnChart(document.getElementById(div));
+		    hitsChart.draw(hitsData, {width: '100%', height: 300, is3D: true, legend: 'none', backgroundColor: 'transparent', title: title});
+		    google.visualization.events.addListener(hitsChart, 'select', function(){
+			selectHitsHandler(hitsChart, hitsData, type);
+		    });
+	    }
+}
+
 // Draw scatter charts
 function createPageSize(statsjson, type, div, title) {
             if(document.getElementById(div)){
@@ -257,25 +266,47 @@ function createPageSize(statsjson, type, div, title) {
 }
 
 // Draw tables
-function createTable(statsjson, type, div, title, options) {
+function createPathTable(statsjson, type, div, title, options) {
             if(document.getElementById(div)){
-            data = createDataArray(statsjson, type, title, 'reg');
-	    var table = new google.visualization.Table( document.getElementById(div) );
-	    table.draw(data, options);
+            pathTableData = createDataArray(statsjson, type, title, 'reg');
+	    var pathTable = new google.visualization.Table( document.getElementById(div) );
+	    pathTable.draw(pathTableData, options);
+	    google.visualization.events.addListener(pathTable, 'select', function(){
+            	selectHandler(pathTable, pathTableData, type);
+            });
 	    }
 }
 
-// Draw timelines
-function createHitsTable(hitsjson, type, div, title) {
+function createUserAgentTable(statsjson, type, div, title, options) {
             if(document.getElementById(div)){
-	    hitsData = createDataArray(hitsjson, type, title, 'date');
-	    hitsData.sort([{column: 0, desc: false}]);
-	    var hitsChart = new google.visualization.ColumnChart(document.getElementById(div));
-	    hitsChart.draw(hitsData, {width: '100%', height: 300, is3D: true, legend: 'none', backgroundColor: 'transparent', title: title});
-	    google.visualization.events.addListener(hitsChart, 'select', function(){
-            	selectHitsHandler(hitsChart, hitsData, type);
+            userAgentTableData = createDataArray(statsjson, type, title, 'reg');
+	    var userAgentTable = new google.visualization.Table( document.getElementById(div) );
+	    userAgentTable.draw(userAgentTableData, options);
+	    google.visualization.events.addListener(userAgentTable, 'select', function(){
+            	selectHandler(userAgentTable, userAgentTableData, type);
             });
+	    }
+}
 
+function createReferrerTable(statsjson, type, div, title, options) {
+            if(document.getElementById(div)){
+            referrerTableData = createDataArray(statsjson, type, title, 'reg');
+	    var referrerTable = new google.visualization.Table( document.getElementById(div) );
+	    referrerTable.draw(referrerTableData, options);
+	    google.visualization.events.addListener(referrerTable, 'select', function(){
+            	selectHandler(referrerTable, referrerTableData, type);
+            });
+	    }
+}
+
+function createIpTable(statsjson, type, div, title, options) {
+            if(document.getElementById(div)){
+            ipTableData = createDataArray(statsjson, type, title, 'reg');
+	    var ipTable = new google.visualization.Table( document.getElementById(div) );
+	    ipTable.draw(ipTableData, options);
+	    google.visualization.events.addListener(ipTable, 'select', function(){
+            	selectHandler(ipTable, ipTableData, type);
+            });
 	    }
 }
 
@@ -311,18 +342,18 @@ function refresh(statsjson){
 	createStatus(statsjson, 'status', 'statuschart', 'Status');
 
 	// Create URL Table
-	createTable(statsjson, 'url', 'pathtable', 'Path', {showRowNumber: true, width: '100%', pageSize: 10, page: 'enable', sort: 'enable', sortColumn: 1, sortAscending: false});
+	createPathTable(statsjson, 'url', 'pathtable', 'Path', {showRowNumber: true, width: '100%', pageSize: 10, page: 'enable', sort: 'enable', sortColumn: 1, sortAscending: false});
 
 	// Create Referrer Graph
 	createReferrer(statsjson, 'referrer', 'referrerchart', 'Referrers');
-        createTable(statsjson, 'referrer', 'referrertable', 'Referrers', {showRowNumber: true, width: '100%', pageSize: 10, page: 'enable', sort: 'enable', sortColumn: 1, sortAscending: false});
+        createReferrerTable(statsjson, 'referrer', 'referrertable', 'Referrers', {showRowNumber: true, width: '100%', pageSize: 10, page: 'enable', sort: 'enable', sortColumn: 1, sortAscending: false});
 
 	// Create User Agent Graph
 	createUserAgent(statsjson, 'agent', 'useragentchart', 'User Agent');
-        createTable(statsjson, 'agent', 'useragenttable', 'User Agent', {showRowNumber: true, width: '100%', pageSize: 10, page: 'enable', sort: 'enable', sortColumn: 1, sortAscending: false});
+        createUserAgentTable(statsjson, 'agent', 'useragenttable', 'User Agent', {showRowNumber: true, width: '100%', pageSize: 10, page: 'enable', sort: 'enable', sortColumn: 1, sortAscending: false});
 
 	// Create Host Table
-	createTable(statsjson, 'host', 'hosttable', 'User IP', {showRowNumber: true, width: '100%', pageSize: 10, page: 'enable', sort: 'enable', sortColumn: 1, sortAscending: false});
+	createIpTable(statsjson, 'host', 'hosttable', 'User IP', {showRowNumber: true, width: '100%', pageSize: 10, page: 'enable', sort: 'enable', sortColumn: 1, sortAscending: false});
 
 	// Create Size Table
 	createPageSize(statsjson, 'size', 'sizechart', 'Page Size');
@@ -515,8 +546,10 @@ function login(){
                 mywidgets = JSON.parse(Get_Cookie('mywidgets'));
 	});
 
+	  if(loginerror == 0){
           // the init builds the dashboard. This makes it possible to first unbind events before the dashboars is built.
           dashboard.init();
+	  }
         }
       });
 
@@ -547,7 +580,6 @@ function remember( selector ){
     );
 }
 
-
     </script>
 
     <link rel="stylesheet" type="text/css" href="static/dashboardplugin/themes/default/dashboardui.css" />
@@ -573,7 +605,7 @@ function remember( selector ){
 <div class="midcontainer" id="midcontainer">
 <div class="screenshot" id="screenshot"><img src="static/images/hoovalyzerscreenshots.png"></div>
 <div class="loginbox" id="loginbox">
-<form><img src="static/images/loggly.png"><div class="loginfield"><input type ='text' name='subdomain' id='subdomain' value='<subdomain>' onfocus='value=""'/></div><div class="loginfield"><input type='text' name='user' id = 'user' value='<username>' onfocus='value=""'/></div><div class="loginfield"><input type='password' name='password' id = 'password' value='password' onfocus='value=""'/></div><div class="loginfield"><INPUT TYPE='button' onClick='login(); return false;' VALUE='Login!'></div></form>
+<form><img src="static/images/loggly.png" width="120"><form name="loginform"><div class="loginfield"><input type ='text' name='subdomain' id='subdomain' value='<subdomain>' onfocus='value=""'/></div><div class="loginfield"><input type='text' name='user' id = 'user' value='<username>' onfocus='value=""'/></div><div class="loginfield"><input type='password' name='password' id = 'password' value='password' onfocus='value=""'/></div><div class="loginfield"><INPUT TYPE='submit' onClick='login(); return false;' VALUE='Login!'></div></form>
 <script>
 if(Get_Cookie('logglyuser')){
 $(document).ready(function(){
