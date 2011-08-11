@@ -36,6 +36,33 @@ charts = [];
 n = 0;
 loginerror = 0;
 
+// Read a page's GET URL variables and return them as an associative array.
+function getUrlVars()
+{
+    var vars = [], hash;
+    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+    for(var i = 0; i < hashes.length; i++)
+    {
+        hash = hashes[i].split('=');
+        vars.push(hash[0]);
+        vars[hash[0]] = hash[1];
+    }
+    return vars;
+}
+
+if(getUrlVars()["access_token"]){
+  Set_Cookie('access_token', getUrlVars()["access_token"], '', '/', '', '');
+}
+
+function sendToOauth(){
+     jQuery(document).ready(function(){
+       Set_Cookie('logglysub', $('#subdomain').val(), '', '/', '', '');
+       $.get('/oauthtest', function(url){
+	window.location=url;
+	});
+	});
+}
+
 // Find data
 function find(json, type) {
     for (j=0;j<json.length;j++){
@@ -315,7 +342,7 @@ function stats(){
 	// set max results
 	maxResults = parseInt($('#maxResults').val());
 
-       $.post('/grab', {logglyname: Get_Cookie('logglyuser'), 'logglypass': Get_Cookie('logglypass'), 'logglysub': Get_Cookie('logglysub'), 'inputname': $('#inputname').val(), 'searchquery': '', 'starttime': encodeURIComponent($('#starttime').val()), 'endtime': encodeURIComponent($('#endtime').val())},
+       $.post('/grab', {'access_token': decodeURIComponent(Get_Cookie('access_token')), 'logglysub': Get_Cookie('logglysub'), 'inputname': $('#inputname').val(), 'searchquery': '', 'starttime': encodeURIComponent($('#starttime').val()), 'endtime': encodeURIComponent($('#endtime').val())},
 	function(json){
 		statsjson = json;
 		refresh(statsjson);
@@ -328,7 +355,7 @@ function stats(){
 
 // Grab facets data from Loggly's API
 function facets(){
-       $.post('/grabf', {logglyname: Get_Cookie('logglyuser'), 'logglypass': Get_Cookie('logglypass'), 'logglysub': Get_Cookie('logglysub'), 'inputname': $('#inputname').val(), 'searchquery': '', 'starttime': encodeURIComponent($('#starttime').val()), 'endtime': encodeURIComponent($('#endtime').val())},
+       $.post('/grabf', {'access_token': decodeURIComponent(Get_Cookie('access_token')), 'logglysub': Get_Cookie('logglysub'), 'inputname': $('#inputname').val(), 'searchquery': '', 'starttime': encodeURIComponent($('#starttime').val()), 'endtime': encodeURIComponent($('#endtime').val())},
         function(json){
 		hitsjson = json;
 		refreshf(hitsjson);
@@ -368,9 +395,8 @@ function refreshf(hitsjson){
 
 // Clear all cookies and send back to the homepage (logout)
 function clearcookie(){
-Delete_Cookie('logglyuser', '/', '');
-Delete_Cookie('logglypass', '/', '');
 Delete_Cookie('logglysub', '/', '');
+Delete_Cookie('access_token', '/', '');
 document.getElementById('loginbar').innerHTML = "Cookies cleared. Please wait...";
 setTimeout('window.location = "/"',3000);
 }
@@ -385,24 +411,15 @@ if(!Get_Cookie('mywidgets')){
 
 // Login to Loggly and grab inputs
 function login(){
-                if(!Get_Cookie('logglyuser')) {
-                Set_Cookie('logglyuser', $('#user').val(), '', '/', '', '');
-                }
-
-                if(!Get_Cookie('logglypass')) {
-                Set_Cookie('logglypass', $('#password').val(), '', '/', '', '');
-                }
-
-                if(!Get_Cookie('logglysub')) {
-                Set_Cookie('logglysub', $('#subdomain').val(), '', '/', '', '');
-                }                document.getElementById('loginbox').innerHTML = '';
-                $('#loginbox').css('display','none');
+		//document.getElementById('loginbox').innerHTML = '';
+  
+		$('#loginbox').css('display','none');
 
                 $('#headerlinks').html('<a href="#" class="headerlink" onclick="javascript:$(\'#editOptions\').dialog()">Change Options</a> - <a class="editlayout headerlink" href="#">Edit layout</a> - <a href="#" onclick="javascript:clearcookie();" class="headerlink">Logout (Clear Cookies)</a>');
 
 		$('#infobox').html('');
 
-       $.post('/', {logglyname: Get_Cookie('logglyuser'), 'logglypass': Get_Cookie('logglypass'), 'logglysub': Get_Cookie('logglysub')},
+       $.post('/', {'access_token': decodeURIComponent(Get_Cookie('access_token')), 'logglysub': Get_Cookie('logglysub')},
                 function(json){
                  var input_keys = new Array(0);
                  var input_names = new Array(0);
@@ -605,9 +622,9 @@ function remember( selector ){
 <div class="midcontainer" id="midcontainer">
 <div class="screenshot" id="screenshot"><img src="static/images/hoovalyzerscreenshots.png"></div>
 <div class="loginbox" id="loginbox">
-<form><img src="static/images/loggly.png" width="120"><form name="loginform"><div class="loginfield"><input type ='text' name='subdomain' id='subdomain' value='<subdomain>' onfocus='value=""'/></div><div class="loginfield"><input type='text' name='user' id = 'user' value='<username>' onfocus='value=""'/></div><div class="loginfield"><input type='password' name='password' id = 'password' value='password' onfocus='value=""'/></div><div class="loginfield"><INPUT TYPE='submit' onClick='login(); return false;' VALUE='Login!'></div></form>
+<form><img src="static/images/loggly.png" width="120"><form name="loginform"><div class="loginfield"><input type="text" name="subdomain" id="subdomain" value="<subdomain>" onfocus="value=''"></div><div class="loginfield"><input type="button" onClick="sendToOauth(); return false;" VALUE="Authorize"></div></form>
 <script>
-if(Get_Cookie('logglyuser')){
+if(Get_Cookie('access_token')){
 $(document).ready(function(){
 login();
 });

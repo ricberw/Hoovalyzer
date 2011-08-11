@@ -11,11 +11,12 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 
 
-# Set the API endpoint 
+# Set global variables
 url = "http://ricberw.loggly.com/api/inputs/"
+access_token_url = 'http://ricberw.loggly.com/api/oauth/access_token/'
 consumer_key = 'MGueyfX4ZYdghpyMqU'
 consumer_secret = 'VQ3r83KRafzqjx7fbdeQb2SKLj9jpSmD'
-access_token_url = 'http://ricberw.loggly.com/api/oauth/access_token/'
+
 
 # Set the base oauth_* parameters along with any other parameters required
 # for the API call.
@@ -24,11 +25,12 @@ cookie_string = os.environ.get('HTTP_COOKIE')
 # Set up instances of our Token and Consumer. The Consumer.key and 
 # Consumer.secret are given to you by the API provider. The Token.key and
 # Token.secret is given to you after a three-legged authentication.
-consumer = oauth.Consumer(key="MGueyfX4ZYdghpyMqU", secret="VQ3r83KRafzqjx7fbdeQb2SKLj9jpSmD")
+consumer = oauth.Consumer(key=consumer_key, secret=consumer_secret)
 
 def get_access_token(req_t, verif, secret):
     import urlparse
     import Cookie
+    import datetime
     import oauth2 as oauth
     
     h = httplib2.Http()
@@ -46,11 +48,16 @@ def get_access_token(req_t, verif, secret):
     response, content = h.request(oauth_req3.to_url(), 'GET')
     access_token = oauth.Token.from_string(content)
 
-    client = gdata.docs.service.DocsService()
-    client.SetOAuthInputParameters(signature_method,consumer_key,consumer_secret=consumer_secret)
+#    client = gdata.docs.service.DocsService()
+#    client.SetOAuthInputParameters(signature_method,consumer_key,consumer_secret=consumer_secret)
 
 # the token key and secret should be recalled from your database
-    client.SetOAuthToken(gdata.auth.OAuthToken(key=access_token.key, secret=access_token.secret))
+#    client.SetOAuthToken(gdata.auth.OAuthToken(key=access_token.key, secret=access_token.secret))
+
+#    expiration = datetime.datetime.now() + datetime.timedelta(days=30)
+#    c = Cookie.SimpleCookie()
+#    c['access_token'] = str(access_token)
+#    c['access_token']["expires"] = expiration.strftime("%a, %d-%b-%Y %H:%M:%S PST")
 
     return access_token
     
@@ -77,10 +84,7 @@ def get_inputs(access_t):
             input_key.append(content_dict[i]['input_token'])
             input_name.append(content_dict[i]['name'])
             
-            
-    print "<h1> %s </h1> " % 'YOU SUCK'
-    for i in range(len(input_key)):
-        print "<a href=\"javascript:(function(){newsrc=document.location.protocol+'//d3eyf2cx8mbems.cloudfront.net/js/loggly-0.1.0.js';document.body.appendChild(document.createElement('script')).src=newsrc;var logglykey='"+input_key[i]+"';var%20host=document.location.protocol+'//logs.loggly.com';function%20sendlog(host,logglykey){castor=new%20loggly({url:host+'/inputs/'+logglykey+'?rt=1',level:'log'});castor.log('url='+location.href);}function racecond(){try{loggly==null;sendlog(host,logglykey);}catch(err){setTimeout(racecond,100);}}setTimeout(racecond,100);})();\">Send to "+input_name[i]+"@loggly >></a><br>"
+    print 'Location: http://localhost:8080/?access_token='+urllib.quote(str(access_t))+'\n'
     
 class oauth(webapp.RequestHandler):
     def get(self):
