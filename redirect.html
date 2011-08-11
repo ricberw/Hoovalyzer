@@ -1,0 +1,35 @@
+<html>
+<!--  using this for testing the python loggly api -->
+ <head>
+   <link type="text/css" rel="stylesheet" media="screen" href="/static/stylesheet/main.css" />
+   <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js'></script>
+<script type = "text/javascript">
+function test(){
+     jQuery(document).ready(function(){
+       $.get('http://localhost:8080/oauthtest', function(url){
+	window.location=url;
+	});
+	});
+}
+</script>
+    <style type="text/css">
+	.center
+	{
+		position:absolute;
+		right:650px;
+		width:70%;
+		
+	}
+	</style>
+</head>
+<body>
+<div class="header">
+<img src="/static/images/hoovlet.png"/>
+</div>
+<div class="center">
+<form action="">
+<input type="button" onClick="test(); return false;" VALUE="Authorize">
+</form>
+</div>
+</body>
+</html>

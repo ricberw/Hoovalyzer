@@ -61,3 +61,12 @@ handlers:
 
 - url: /dashboard
   script: hoov_call.py
+
+- url: /oauthtest
+  script: oauthtest.py
+
+- url: /redirect
+  script: oauthtest.py
+
+- url: /oauthreturned/
+  script: oauthreturned.py
