@@ -12,8 +12,6 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 
 
 # Set global variables
-url = "http://ricberw.loggly.com/api/inputs/"
-access_token_url = 'http://ricberw.loggly.com/api/oauth/access_token/'
 consumer_key = 'MGueyfX4ZYdghpyMqU'
 consumer_secret = 'VQ3r83KRafzqjx7fbdeQb2SKLj9jpSmD'
 
@@ -27,11 +25,14 @@ cookie_string = os.environ.get('HTTP_COOKIE')
 # Token.secret is given to you after a three-legged authentication.
 consumer = oauth.Consumer(key=consumer_key, secret=consumer_secret)
 
-def get_access_token(req_t, verif, secret):
+def get_access_token(req_t, verif, secret, logglysub):
     import urlparse
     import Cookie
     import datetime
     import oauth2 as oauth
+    
+    url = "http://"+logglysub+".loggly.com/api/inputs/"
+    access_token_url = 'http://'+logglysub+'.loggly.com/api/oauth/access_token/'
     
     h = httplib2.Http()
     signature_method = oauth.SignatureMethod_HMAC_SHA1()
@@ -63,10 +64,13 @@ def get_access_token(req_t, verif, secret):
     
 
 
-def get_inputs(access_t):
+def get_inputs(access_t, logglysub):
     import urlparse
     import Cookie
     import oauth2 as oauth
+    
+    url = "http://"+logglysub+".loggly.com/api/inputs/"
+    access_token_url = 'http://'+logglysub+'.loggly.com/api/oauth/access_token/'
     
     h = httplib2.Http()
     signature_method = oauth.SignatureMethod_HMAC_SHA1()
@@ -84,7 +88,7 @@ def get_inputs(access_t):
             input_key.append(content_dict[i]['input_token'])
             input_name.append(content_dict[i]['name'])
             
-    print 'Location: http://localhost:8080/?access_token='+urllib.quote(str(access_t))+'\n'
+    print 'Location: /?access_token='+urllib.quote(str(access_t))+'\n'
     
 class oauth(webapp.RequestHandler):
     def get(self):
@@ -92,9 +96,10 @@ class oauth(webapp.RequestHandler):
         oauth_v = self.request.get('oauth_verifier')
         req_token = self.request.get('oauth_token')
         req_secret = self.request.cookies['secret']
-        access_token = get_access_token(req_token, oauth_v, req_secret)
+        logglysub = self.request.cookies['logglysub']
+        access_token = get_access_token(req_token, oauth_v, req_secret, logglysub)
         
-        json = (get_inputs(access_token))
+        json = (get_inputs(access_token, logglysub))
         return json 
 
 app = webapp.WSGIApplication([('/oauthreturned/', oauth)], debug = True)

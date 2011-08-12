@@ -10,13 +10,12 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 consumer_key = 'MGueyfX4ZYdghpyMqU'
 consumer_secret = 'VQ3r83KRafzqjx7fbdeQb2SKLj9jpSmD'
 
-request_token_url = 'http://ricberw.loggly.com/api/oauth/request_token/'
-access_token_url = 'http://ricberw.loggly.com/api/oauth/access_token/'
-authorize_url = 'https://ricberw.loggly.com/api/oauth/authorize/'
-
-
-def get_data():
+def get_data(returnpath, logglysub):
     import Cookie
+    request_token_url = 'http://'+logglysub+'.loggly.com/api/oauth/request_token/'
+    access_token_url = 'http://'+logglysub+'.loggly.com/api/oauth/access_token/'
+    authorize_url = 'https://'+logglysub+'.loggly.com/api/oauth/authorize/'
+    
     consumer = oauth.Consumer(consumer_key, consumer_secret)
     signature_method = oauth.SignatureMethod_HMAC_SHA1()
     
@@ -27,7 +26,7 @@ def get_data():
     # We dont have a callback server, we're going to use the browser to
     # authorize.
 
-    parameters['oauth_callback'] = 'http://localhost:8080/oauthreturned/'
+    parameters['oauth_callback'] = returnpath
     oauth_req1 = oauth.Request.from_consumer_and_token(
         consumer, http_url=request_token_url, parameters=parameters)
     oauth_req1.sign_request(signature_method, consumer, None)
@@ -39,10 +38,12 @@ def get_data():
     c = Cookie.SimpleCookie()
     c['secret'] = str(token.secret)
     c['secret']["expires"] = expiration.strftime("%a, %d-%b-%Y %H:%M:%S PST")
+    c["logglysub"] = logglysub
+    c["logglysub"]["expires"] = expiration.strftime("%a, %d-%b-%Y %H:%M:%S PST")
     print c
     
     oauth_req2 = oauth.Request.from_token_and_callback(
-        token=token, callback='http://localhost:8080/oauthreturned/', http_url=authorize_url)
+        token=token, callback=returnpath, http_url=authorize_url)
 
     return oauth_req2.to_url()
     
@@ -52,7 +53,11 @@ class redirect(webapp.RequestHandler):
 
 class auth(webapp.RequestHandler):
       def get(self):
-                self.response.out.write(get_data())
+                url = self.request.url
+                logglysub = self.request.get('logglysub')
+                returnpath = url.replace(self.request.path, '/oauthreturned/')
+                returnpath = returnpath.replace('?'+self.request.query_string, '')
+                self.response.out.write(get_data(returnpath, logglysub))
             
 
 app = webapp.WSGIApplication([('/oauthtest', auth),('/redirect', redirect)], debug = True)

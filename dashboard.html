@@ -57,8 +57,8 @@ if(getUrlVars()["access_token"]){
 function sendToOauth(){
      jQuery(document).ready(function(){
        Set_Cookie('logglysub', $('#subdomain').val(), '', '/', '', '');
-       $.get('/oauthtest', function(url){
-	window.location=url;
+       $.get('/oauthtest', {'logglysub':$('#subdomain').val()}, function(url){
+	  window.location=url;
 	});
 	});
 }
@@ -622,7 +622,7 @@ function remember( selector ){
 <div class="midcontainer" id="midcontainer">
 <div class="screenshot" id="screenshot"><img src="static/images/hoovalyzerscreenshots.png"></div>
 <div class="loginbox" id="loginbox">
-<form><img src="static/images/loggly.png" width="120"><form name="loginform"><div class="loginfield"><input type="text" name="subdomain" id="subdomain" value="<subdomain>" onfocus="value=''"></div><div class="loginfield"><input type="button" onClick="sendToOauth(); return false;" VALUE="Authorize"></div></form>
+<form><img src="static/images/loggly.png" width="120"><form name="loginform" onsubmit='sendToOauth();'><div class="loginfield"><input type="text" name="subdomain" id="subdomain" value="<subdomain>" onfocus="value=''"></div><div class="loginfield"><input type="submit" onClick="sendToOauth(); return false;" VALUE="Authorize"></div></form>
 <script>
 if(Get_Cookie('access_token')){
 $(document).ready(function(){
