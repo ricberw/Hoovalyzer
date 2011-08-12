@@ -18,7 +18,7 @@ consumer = oauth.Consumer(key=consumer_key, secret=consumer_secret)
 # Enable cookies
 cookie_string = os.environ.get('HTTP_COOKIE')
 
-#def auth_url(url, user, passwd):
+# Create and sign an oauth request to retrieve data from Loggly
 def auth_url(url, access_token):
 	access_t = oauth.Token.from_string(access_token)
 	h = httplib2.Http()
@@ -30,14 +30,17 @@ def auth_url(url, access_token):
 	resp, jsonoutput = h.request(url, "GET", headers=oauth_req4.to_header())
         return json.dumps(json.loads(jsonoutput))
 
+# Set URL to retrieve inputs from the API
 def get_data(access_token, logglysub):
         url = 'http://'+logglysub+'.loggly.com/api/inputs/'
 	return auth_url(url, access_token)
 
+# Set URL to retrieve facets data from the API
 def get_facets(access_token, logglysub, inputname, searchquery, starttime, endtime):
         url = 'http://'+logglysub+'.loggly.com/api/facets/date/?q=inputname:'+inputname+'&from='+starttime+'&until='+endtime
 	return auth_url(url, access_token)
 
+# Set URL to retrieve log data from the API
 def get_stats(access_token, logglysub, inputname, searchquery, starttime, endtime):
         url = 'http://'+logglysub+'.loggly.com/api/search/?q=inputname:'+inputname+'%20AND%20isjson:true&from='+starttime+'&until='+endtime+'&rows=1000'
 	return auth_url(url, access_token)

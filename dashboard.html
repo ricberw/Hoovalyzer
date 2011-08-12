@@ -50,10 +50,12 @@ function getUrlVars()
     return vars;
 }
 
+// Set access token cookie
 if(getUrlVars()["access_token"]){
   Set_Cookie('access_token', getUrlVars()["access_token"], '', '/', '', '');
 }
 
+// Send to oauth authorize url
 function sendToOauth(){
      jQuery(document).ready(function(){
        Set_Cookie('logglysub', $('#subdomain').val(), '', '/', '', '');
@@ -268,6 +270,7 @@ function createReferrer(statsjson, type, div, title) {
             }
 }
 
+// Draw line charts
 function createHitsTable(hitsjson, type, div, title) {
             if(document.getElementById(div)){
 		    hitsData = createDataArray(hitsjson, type, title, 'date');
@@ -371,11 +374,11 @@ function refresh(statsjson){
 	// Create URL Table
 	createPathTable(statsjson, 'url', 'pathtable', 'Path', {showRowNumber: true, width: '100%', pageSize: 10, page: 'enable', sort: 'enable', sortColumn: 1, sortAscending: false});
 
-	// Create Referrer Graph
+	// Create Referrer Graph/Table
 	createReferrer(statsjson, 'referrer', 'referrerchart', 'Referrers');
         createReferrerTable(statsjson, 'referrer', 'referrertable', 'Referrers', {showRowNumber: true, width: '100%', pageSize: 10, page: 'enable', sort: 'enable', sortColumn: 1, sortAscending: false});
 
-	// Create User Agent Graph
+	// Create User Agent Graph/Table
 	createUserAgent(statsjson, 'agent', 'useragentchart', 'User Agent');
         createUserAgentTable(statsjson, 'agent', 'useragenttable', 'User Agent', {showRowNumber: true, width: '100%', pageSize: 10, page: 'enable', sort: 'enable', sortColumn: 1, sortAscending: false});
 
@@ -401,7 +404,7 @@ document.getElementById('loginbar').innerHTML = "Cookies cleared. Please wait...
 setTimeout('window.location = "/"',3000);
 }
 
-// Check for cookie with user's widget settings - if !exists, just show "Welcome" widget
+// Check for cookie with user's widget settings - if !exists, show default widgets
 if(!Get_Cookie('mywidgets')){
         mywidgets = JSON.parse('{"layout":"layout5","data":[{"title":"User Agent Pie Chart","id":"w04","column":"first","editurl":"undefined","open":true,"url":"static/dashboardplugin/demo/widgets/widget4.html","metadata":{}},{"title":"Hits Graph","id":"w01","column":"first","editurl":"undefined","open":true,"url":"static/dashboardplugin/demo/widgets/widget1.html","metadata":{}},{"title":"Status Pie Chart","id":"w02","column":"second","editurl":"undefined","open":true,"url":"static/dashboardplugin/demo/widgets/widget2.html","metadata":{}},{"title":"Page Size Scatterplot","id":"w05","column":"second","editurl":"undefined","open":true,"url":"static/dashboardplugin/demo/widgets/widget5.html","metadata":{}},{"title":"Referrers Pie Chart","id":"w03","column":"third","editurl":"undefined","open":true,"url":"static/dashboardplugin/demo/widgets/widget3.html","metadata":{}},{"title":"Path Table","id":"w10","column":"third","editurl":"undefined","open":true,"url":"static/dashboardplugin/demo/widgets/widget10.html","metadata":{}}]}');
 	Set_Cookie('mywidgets', JSON.stringify(mywidgets), '', '/', '', '');
@@ -411,8 +414,6 @@ if(!Get_Cookie('mywidgets')){
 
 // Login to Loggly and grab inputs
 function login(){
-		//document.getElementById('loginbox').innerHTML = '';
-  
 		$('#loginbox').css('display','none');
 
                 $('#headerlinks').html('<a href="#" class="headerlink" onclick="javascript:$(\'#editOptions\').dialog()">Change Options</a> - <a class="editlayout headerlink" href="#">Edit layout</a> - <a href="#" onclick="javascript:clearcookie();" class="headerlink">Logout (Clear Cookies)</a>');
@@ -529,7 +530,7 @@ function login(){
                 }
 	});
 
-	// Remove widget from user cookie	
+	// Set dashboard state cookie and refresh graphs when dashboard state changed	
 	dashboard.element.live('dashboardStateChange', function(e, o) {
 		Set_Cookie('mywidgets', JSON.stringify(JSON.parse(dashboard.serialize())), '', '/', '', '');
 		mywidgets = JSON.parse(Get_Cookie('mywidgets'));
@@ -541,6 +542,7 @@ function login(){
 		}
 	});
 
+	// Set dashboard state cookie and refresh graphs when layout changed
 	dashboard.element.live('dashboardLayoutChanged', function(e, o) {
                 Set_Cookie('mywidgets', JSON.stringify(JSON.parse(dashboard.serialize())), '', '/', '', '');
                 mywidgets = JSON.parse(Get_Cookie('mywidgets'));
@@ -553,16 +555,14 @@ function login(){
 
 	});
 
+	// Save dashboard state when called
 	dashboard.element.live('dashboardSaveState', function(e, o) {
 		Set_Cookie('mywidgets', JSON.stringify(JSON.parse(dashboard.serialize())), '', '/', '', '');
 		mywidgets = JSON.parse(Get_Cookie('mywidgets'));
 		o.widget.refreshContent();
 	});
-	dashboard.element.live('dashboardLayoutChanged', function() {
-		Set_Cookie('mywidgets', JSON.stringify(JSON.parse(dashboard.serialize())), '', '/', '', '');
-                mywidgets = JSON.parse(Get_Cookie('mywidgets'));
-	});
-
+	
+	  // If there is an error, do not build the dashboard
 	  if(loginerror == 0){
           // the init builds the dashboard. This makes it possible to first unbind events before the dashboars is built.
           dashboard.init();
@@ -632,7 +632,8 @@ login();
 </script>
 </div>
 </div>
-<p>Hoovalyzer uses <b>Loggly</b> to collect and serve log data, so be sure to <a href="http://vimeo.com/19813490" target="_blank">meet Hoover</a> (the Beaver), <a href="https://app.loggly.com/pricing/" target="_blank">create an account</a>, and <a href="http://wiki.loggly.com/apachelogging" target="_blank">start sending data</a>.</p>  
+<p>Hoovalyzer uses <b>Loggly</b> to collect and serve log data, so be sure to <a href="http://vimeo.com/19813490" target="_blank">meet Hoover</a> (the Beaver), <a href="https://app.loggly.com/pricing/" target="_blank">create an account</a>, and <a href="http://wiki.loggly.com/apachelogging" target="_blank">start sending data</a>.</p>
+<p><b>Want to make Hoovalyzer better? Fork the <a href="https://github.com/ricberw/Hoovalyzer/tree/oauth" target="_blank">Hoovalyzer code</a> on GitHub.</b></p>
   </div>
 
   <div class="addbox" id="addwidget">
