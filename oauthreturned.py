@@ -92,15 +92,18 @@ def get_inputs(access_t, logglysub):
     
 class oauth(webapp.RequestHandler):
     def get(self):
-        url = self.request.arguments()
-        oauth_v = self.request.get('oauth_verifier')
-        req_token = self.request.get('oauth_token')
-        req_secret = self.request.cookies['secret']
-        logglysub = self.request.cookies['logglysub']
-        access_token = get_access_token(req_token, oauth_v, req_secret, logglysub)
-        
-        json = (get_inputs(access_token, logglysub))
-        return json 
+        if self.request.get('oauth_verifier') == '':
+            print 'Location: /\n'
+        else:
+            url = self.request.arguments()
+            oauth_v = self.request.get('oauth_verifier')
+            req_token = self.request.get('oauth_token')
+            req_secret = self.request.cookies['secret']
+            logglysub = self.request.cookies['logglysub']
+            access_token = get_access_token(req_token, oauth_v, req_secret, logglysub)
+            
+            json = (get_inputs(access_token, logglysub))
+            return json
 
 app = webapp.WSGIApplication([('/oauthreturned/', oauth)], debug = True)
 
